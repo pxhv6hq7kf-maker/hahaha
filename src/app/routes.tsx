@@ -8,6 +8,9 @@ import FollowEnterprise from "./pages/FollowEnterprise";
 
 export const router = createBrowserRouter([
   {
+    basename: "/hahaha",
+    path: "/",
+  {
     path: "/",
     Component: RootLayout,
     children: [
