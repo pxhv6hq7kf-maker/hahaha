@@ -5,6 +5,7 @@ import Industry from "./pages/Industry";
 import Enterprise from "./pages/Enterprise";
 import Report from "./pages/Report";
 import FollowEnterprise from "./pages/FollowEnterprise";
+import Profile from "./pages/Profile";
 
 export const router = createBrowserRouter([
   {
@@ -17,6 +18,7 @@ export const router = createBrowserRouter([
       { path: "enterprise/:enterpriseId", Component: Enterprise },
       { path: "report/:reportId", Component: Report },
       { path: "follow/enterprise", Component: FollowEnterprise },
+      { path: "profile", Component: Profile },
     ],
   },
 ], { basename: "/hahaha" });
