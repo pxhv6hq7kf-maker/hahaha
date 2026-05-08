@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useParams, useSearchParams, Link } from "react-router";
-import { Star, ChevronDown, ChevronUp, FileText, Briefcase, Building2, ShieldAlert, LineChart, Globe, MapPin, Search, ArrowLeft, Users, TrendingUp, Leaf } from "lucide-react";
+import { Star, ChevronDown, ChevronUp, FileText, Briefcase, Building2, ShieldAlert, LineChart, Globe, Search, ArrowLeft, TrendingUp } from "lucide-react";
 import SearchBar from "../components/SearchBar";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -13,12 +13,66 @@ const DYNAMICS = [
 ];
 
 const SECTIONS = [
-  { id: "intro", title: "企业简介", icon: <Building2 size={16} />, content: "成立于2015年，是国内领先的科技创新企业，专注于为行业提供数字化、智能化的全栈解决方案。目前已服务超过千家头部客户，在业界享有较高的品牌知名度。" },
-  { id: "talent", title: "人才团队建设分析", icon: <Users size={16} />, content: "企业核心管理层多毕业于国内外知名高校，具备丰富的行业经验。研发人员占比超过40%，其中硕士及以上学历占60%以上。近两年核心人才流失率控制在5%以内，团队稳定性较好。已建立完善的人才培养体系和股权激励机制。" },
-  { id: "market", title: "产业与市场布局分析", icon: <MapPin size={16} />, content: "国内市场以长三角、珠三角、京津冀为核心区域，市场份额约35%；海外业务拓展至东南亚、欧洲等地区，海外营收占比约15%。在智能制造赛道中位居第一梯队，与多家行业龙头建立深度合作关系。" },
-  { id: "growth", title: "成长动能预测分析", icon: <TrendingUp size={16} />, content: "过去三年营收复合增长率超过30%，预计未来两年仍将保持25%以上增速。产品线持续扩展，技术壁垒不断强化。随着行业数字化转型加速，公司有望进入新一轮高速发展期。" },
-  { id: "sustainability", title: "经营可持续性分析", icon: <Leaf size={16} />, content: "主营业务毛利率维持在45%左右，现金流状况良好，资产负债率处于健康水平。供应链体系成熟稳定，客户集中度适中。ESG评级持续提升，在绿色制造方面走在行业前列。" },
-  { id: "conclusion", title: "综合评估结论风险提示", icon: <ShieldAlert size={16} />, content: "综合评估：该企业具备较强的技术创新能力和市场竞争力，成长空间可观。风险提示：1. 行业竞争加剧可能导致价格战；2. 核心技术人才流失风险；3. 宏观经济波动可能影响下游需求；4. 国际贸易摩擦可能影响海外业务拓展。建议持续关注行业动态及公司经营状况。" },
+  {
+    id: "intro",
+    title: "企业基本介绍",
+    icon: <Building2 size={16} />,
+    lines: [
+      "成立于2015年，是国内领先的科技创新企业，专注于为行业提供数字化、智能化的全栈解决方案",
+      "目前已服务超过千家头部客户，在业界享有较高的品牌知名度",
+      "2025年度实现营业收入128.5亿元，同比增长32.7%，其中主营业务收入占比96.2%",
+      "近三年营收复合增长率达28.5%，呈持续上升态势",
+    ]
+  },
+  {
+    id: "business",
+    title: "核心业务介绍",
+    icon: <Briefcase size={16} />,
+    lines: [
+      "核心业务涵盖三大板块，形成云管端协同闭环，客户生命周期价值持续增长",
+      "智能硬件研发与制造——营收占比42%，毛利率38%，面向工业和消费场景的智能终端产品，拥有核心专利超300项",
+      "行业SaaS解决方案——营收占比35%，毛利率62%，为金融、医疗、制造等行业提供垂直云服务，客户续约率92%",
+      "数据分析与增值服务——营收占比23%，毛利率55%，基于海量数据资产提供智能决策支持，ARPU值连续三年提升",
+    ]
+  },
+  {
+    id: "projects",
+    title: "近期项目介绍",
+    icon: <Globe size={16} />,
+    lines: [
+      "新一代AI推理芯片项目——已进入流片阶段，预计2026Q4实现小批量交付，目标推理性能较上代提升3倍，已获得3家头部客户预订单",
+      "东南亚市场拓展计划——已在新加坡设立区域总部，与当地2家运营商达成战略合作，预计2026年海外营收占比提升至20%",
+      "智慧医疗平台2.0——中标3个省级医保平台项目，合同金额超5亿元，进入规模化部署阶段",
+      "固态电池检测设备——与宁德时代签订独家供应协议，首批设备已交付验收",
+      "工业互联网安全平台——获工信部试点示范项目认定，已在8家大型制造企业落地",
+    ]
+  },
+  {
+    id: "valuation",
+    title: "盈利预测与估值",
+    icon: <TrendingUp size={16} />,
+    lines: [
+      "【投资评级：增持】未来6-12个月投资收益率预计领先市场基准指数",
+      "2026年预测：营收170亿元（+32%），归母净利润22亿元（+38%），EPS 1.83元",
+      "2027年预测：营收215亿元（+26%），归母净利润30亿元（+36%），EPS 2.50元",
+      "2028年预测：营收265亿元（+23%），归母净利润39亿元（+30%），EPS 3.25元",
+      "核心假设：智能硬件业务增速25%，SaaS业务增速40%，数据服务增速30%",
+      "估值参考：当前PE 35x，低于可比公司均值42x；PS 6.8x，处于行业中枢偏下",
+      "若2025年业绩兑现，按30x PE估算目标价约75-85元，较当前价有约20%-35%上行空间",
+    ]
+  },
+  {
+    id: "risk",
+    title: "风险提示",
+    icon: <ShieldAlert size={16} />,
+    lines: [
+      "行业竞争加剧风险——头部互联网企业加速布局行业SaaS，可能导致价格战和毛利率承压",
+      "技术路线风险——AI芯片项目尚在流片阶段，量产良率和交付节奏存在不确定性",
+      "客户集中度风险——前5大客户营收占比约38%，大客户需求波动可能影响业绩稳定性",
+      "人才流失风险——核心技术团队3人近期减持，需关注团队稳定性",
+      "地缘政治风险——海外业务拓展可能受国际贸易摩擦影响",
+    ]
+  },
 ];
 
 export default function Enterprise() {
@@ -110,8 +164,56 @@ export default function Enterprise() {
                           exit={{ height: 0, opacity: 0 }}
                           className="overflow-hidden"
                         >
-                          <div className="px-4 pb-4 pt-0 text-sm text-slate-600 leading-relaxed border-t border-slate-50/50 mt-1">
-                            {section.content}
+                          <div className="px-4 pb-4 pt-2 text-sm leading-relaxed border-t border-slate-50 mt-1">
+                            {section.id === "valuation" ? (
+                              <div className="space-y-3">
+                                <div className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 px-3 py-1 rounded-lg border border-emerald-200 font-semibold text-[13px]">
+                                  <TrendingUp size={14} />
+                                  增持
+                                  <span className="text-emerald-500 font-normal ml-1">未来6-12个月收益率领先市场基准</span>
+                                </div>
+                                <div className="grid grid-cols-3 gap-2">
+                                  {[
+                                    { year: "2026E", rev: "170亿", revY: "+32%", np: "22亿", npY: "+38%", eps: "1.83" },
+                                    { year: "2027E", rev: "215亿", revY: "+26%", np: "30亿", npY: "+36%", eps: "2.50" },
+                                    { year: "2028E", rev: "265亿", revY: "+23%", np: "39亿", npY: "+30%", eps: "3.25" },
+                                  ].map((y) => (
+                                    <div key={y.year} className="bg-slate-50 rounded-lg p-3 border border-slate-100">
+                                      <div className="text-xs font-bold text-blue-600 mb-2">{y.year}</div>
+                                      <div className="space-y-1 text-xs text-slate-600">
+                                        <div>营收 <span className="font-semibold text-slate-800">{y.rev}</span> <span className="text-emerald-600">{y.revY}</span></div>
+                                        <div>净利 <span className="font-semibold text-slate-800">{y.np}</span> <span className="text-emerald-600">{y.npY}</span></div>
+                                        <div>EPS <span className="font-semibold text-slate-800">{y.eps}</span></div>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                                {section.lines.slice(4).map((line, i) => (
+                                  <p key={i} className="text-slate-500 text-xs flex items-start gap-1.5">
+                                    <span className="w-1 h-1 rounded-full bg-slate-300 mt-1.5 flex-shrink-0"></span>
+                                    {line}
+                                  </p>
+                                ))}
+                              </div>
+                            ) : section.id === "risk" ? (
+                              <div className="space-y-2">
+                                {section.lines.map((line, i) => (
+                                  <div key={i} className="flex items-start gap-2.5 p-2.5 rounded-lg bg-rose-50/50 border border-rose-100/60">
+                                    <span className="w-5 h-5 rounded-md bg-rose-100 text-rose-600 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">{i + 1}</span>
+                                    <p className="text-slate-700 text-[13px]">{line}</p>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <div className="space-y-2">
+                                {section.lines.map((line, i) => (
+                                  <div key={i} className="flex items-start gap-2.5 py-1.5">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-blue-400 mt-1.5 flex-shrink-0"></span>
+                                    <p className="text-slate-600 text-[13px]">{line}</p>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         </motion.div>
                       )}
