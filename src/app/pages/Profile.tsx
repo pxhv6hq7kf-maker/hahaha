@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router";
-import { User, Star, FileText, Flame, ChevronRight } from "lucide-react";
+import { User, Star, FileText, Flame, ChevronRight, Loader2, CheckCircle2, Clock } from "lucide-react";
 
 const FAVORITE_ENTERPRISES = [
   { id: 1, name: "宁德时代", industry: "新能源", logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=64&h=64&fit=crop&q=80" },
@@ -22,6 +22,13 @@ const FOLLOWED_INDUSTRIES = [
   { id: 3, name: "半导体", heat: "85.1w" },
 ];
 
+interface GenerationStatus {
+  enterpriseId: string;
+  enterpriseName: string;
+  status: "generating" | "completed";
+  completedAt?: number;
+}
+
 const TABS = [
   { key: "enterprises", label: "收藏企业", icon: <Star size={16} /> },
   { key: "reports", label: "我的研报", icon: <FileText size={16} /> },
@@ -32,6 +39,56 @@ type TabKey = typeof TABS[number]["key"];
 
 export default function Profile() {
   const [activeTab, setActiveTab] = useState<TabKey>("enterprises");
+  const [generationStatuses, setGenerationStatuses] = useState<GenerationStatus[]>([]);
+
+  useEffect(() => {
+    const loadStatuses = () => {
+      const statuses: GenerationStatus[] = [];
+      // Check localStorage for each favorite enterprise
+      FAVORITE_ENTERPRISES.forEach(enterprise => {
+        const cached = localStorage.getItem(`enterprise_result_${enterprise.id}`);
+        if (cached) {
+          try {
+            const data = JSON.parse(cached);
+            statuses.push({
+              enterpriseId: String(enterprise.id),
+              enterpriseName: enterprise.name,
+              status: "completed",
+              completedAt: data.completedAt,
+            });
+          } catch {
+            // ignore parse errors
+          }
+        }
+      });
+
+      // Also check for any in-progress generation stored in sessionStorage
+      const generatingList = JSON.parse(sessionStorage.getItem("generating_enterprises") || "[]");
+      generatingList.forEach((id: string) => {
+        if (!statuses.find(s => s.enterpriseId === id)) {
+          const enterprise = FAVORITE_ENTERPRISES.find(e => String(e.id) === id);
+          if (enterprise) {
+            statuses.push({
+              enterpriseId: id,
+              enterpriseName: enterprise.name,
+              status: "generating",
+            });
+          }
+        }
+      });
+
+      setGenerationStatuses(statuses);
+    };
+    loadStatuses();
+    const interval = setInterval(loadStatuses, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const formatCompletedTime = (timestamp?: number) => {
+    if (!timestamp) return "";
+    const d = new Date(timestamp);
+    return d.toLocaleDateString("zh-CN", { month: "2-digit", day: "2-digit" }) + " " + d.toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" });
+  };
 
   return (
     <div className="flex flex-col gap-6 pb-10 fade-in">
@@ -111,6 +168,48 @@ export default function Profile() {
             </h2>
           </div>
           <div className="space-y-2">
+            {/* Generation status items */}
+            {generationStatuses.length > 0 && generationStatuses.map((gen) => (
+              <div
+                key={gen.enterpriseId}
+                className={`flex items-center justify-between p-3.5 rounded-xl border transition-all ${
+                  gen.status === "generating"
+                    ? "border-amber-200 bg-amber-50/50"
+                    : "border-transparent hover:border-slate-100 hover:bg-slate-50"
+                }`}
+              >
+                <div className="flex items-center gap-4">
+                  <span className="w-7 h-7 flex items-center justify-center rounded-lg text-sm font-bold shadow-sm bg-gradient-to-br from-indigo-100 to-violet-100 text-indigo-600 border border-indigo-200">
+                    <FileText size={14} />
+                  </span>
+                  <div>
+                    <span className="font-semibold text-slate-700 block">{gen.enterpriseName} 深度研报</span>
+                    <span className="text-xs text-slate-400 mt-0.5 block">
+                      {gen.status === "generating" ? "AI 正在生成中..." : formatCompletedTime(gen.completedAt)}
+                    </span>
+                  </div>
+                </div>
+                {gen.status === "generating" ? (
+                  <span className="text-xs text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full font-medium flex items-center gap-1.5 border border-amber-200">
+                    <Loader2 size={12} className="animate-spin" /> 生成中
+                  </span>
+                ) : (
+                  <Link
+                    to={`/enterprise/${encodeURIComponent(gen.enterpriseId)}?enterpriseName=${encodeURIComponent(gen.enterpriseName)}`}
+                    className="text-xs text-blue-600 hover:text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full font-medium flex items-center gap-1.5 border border-blue-200"
+                  >
+                    <CheckCircle2 size={12} /> 查看研报
+                  </Link>
+                )}
+              </div>
+            ))}
+
+            {/* Divider between generation items and downloaded reports */}
+            {generationStatuses.length > 0 && DOWNLOADED_REPORTS.length > 0 && (
+              <div className="border-t border-slate-100 my-3"></div>
+            )}
+
+            {/* Existing downloaded reports */}
             {DOWNLOADED_REPORTS.map((item, index) => (
               <Link
                 key={item.id}
@@ -131,6 +230,13 @@ export default function Profile() {
                 <FileText size={16} className="text-slate-300 group-hover:text-blue-500 transition-colors" />
               </Link>
             ))}
+
+            {generationStatuses.length === 0 && DOWNLOADED_REPORTS.length === 0 && (
+              <div className="flex flex-col items-center justify-center py-16 text-slate-400 gap-3">
+                <FileText size={32} className="opacity-20" />
+                <p className="text-sm">暂无研报，前往企业页面生成</p>
+              </div>
+            )}
           </div>
         </section>
       )}

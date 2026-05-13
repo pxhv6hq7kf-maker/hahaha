@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useParams, useSearchParams, Link } from "react-router";
 import { Star, ChevronDown, ChevronUp, FileText, Briefcase, Building2, ShieldAlert, LineChart, Globe, Search, ArrowLeft, TrendingUp } from "lucide-react";
 import SearchBar from "../components/SearchBar";
+import GenerationProgress from "../components/GenerationProgress";
 import { motion, AnimatePresence } from "motion/react";
 
 const DYNAMICS = [
@@ -80,10 +81,18 @@ export default function Enterprise() {
   const [searchParams] = useSearchParams();
   const enterpriseName = searchParams.get("enterpriseName") || decodeURIComponent(enterpriseId || "未知企业");
   const fromIndustry = searchParams.get("fromIndustry");
-  
+
   const [collapsedSections, setCollapsedSections] = useState<string[]>([]);
   const [activeFilter, setActiveFilter] = useState("全部");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+
+  // Generation progress flow: check localStorage for cached result
+  const hasCache = !!localStorage.getItem(`enterprise_result_${enterpriseId}`);
+  const [isGenerating, setIsGenerating] = useState(!hasCache);
+
+  const handleGenerationComplete = useCallback(() => {
+    setIsGenerating(false);
+  }, []);
 
   const toggleSection = (sectionId: string) => {
     setCollapsedSections(prev => 
@@ -98,9 +107,20 @@ export default function Enterprise() {
     : DYNAMICS.filter(d => d.type === activeFilter);
 
   return (
-    
+
     <div className="flex flex-col gap-6 pb-10 fade-in">
-      {/* 1. 顶部区域：返回首页按钮 + 缩小版搜索框 */}
+      {/* Generation Progress Mode */}
+      {isGenerating && (
+        <GenerationProgress
+          enterpriseName={enterpriseName}
+          enterpriseId={enterpriseId || ""}
+          onComplete={handleGenerationComplete}
+        />
+      )}
+
+      {/* Full Content Mode (after generation or cached) */}
+      {!isGenerating && (
+      <>
       <section className="pt-4 pb-2 flex items-center justify-center relative">
         <Link
           to="/home"
@@ -318,6 +338,8 @@ export default function Enterprise() {
         </section>
 
       </div>
+      </>
+      )}
     </div>
   );
 }
