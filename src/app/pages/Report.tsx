@@ -1,10 +1,13 @@
 import { useParams, useSearchParams, Link, useNavigate } from "react-router";
 import { ArrowLeft, Download, Printer, Share2, FileText, CheckCircle2 } from "lucide-react";
+import Breadcrumb from "../components/Breadcrumb";
 
 export default function Report() {
   const { reportId } = useParams();
   const [searchParams] = useSearchParams();
   const enterpriseId = searchParams.get("enterpriseId");
+  const enterpriseName = searchParams.get("enterpriseName") || "企业详情";
+  const industryName = searchParams.get("industryName");
   const navigate = useNavigate();
 
   const handleBack = () => {
@@ -19,13 +22,21 @@ export default function Report() {
     <div className="flex flex-col gap-6 pb-10 fade-in min-h-[80vh]">
       {/* Header Actions */}
       <section className="flex items-center justify-between pt-4 pb-4 border-b border-slate-200">
-        <button 
-          onClick={handleBack}
-          className="flex items-center gap-2 text-slate-500 hover:text-blue-600 transition-colors bg-white px-4 py-2 rounded-xl shadow-sm border border-slate-200"
-        >
-          <ArrowLeft size={18} />
-          <span className="font-medium">返回企业页</span>
-        </button>
+        <Breadcrumb items={[
+          ...(industryName
+            ? [{
+                label: industryName,
+                to: `/industry/${encodeURIComponent(industryName)}?industryName=${encodeURIComponent(industryName)}`,
+              }]
+            : []),
+          {
+            label: enterpriseName,
+            to: enterpriseId
+              ? `/enterprise/${enterpriseId}?enterpriseName=${encodeURIComponent(enterpriseName)}${industryName ? `&industryName=${encodeURIComponent(industryName)}` : ""}`
+              : undefined,
+          },
+          { label: "研报详情" },
+        ]} />
 
         <div className="flex items-center gap-3">
           <button className="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors border border-transparent hover:border-blue-100">

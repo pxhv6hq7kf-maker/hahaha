@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useSearchParams } from "react-router";
 import { ArrowLeft, Star, ChevronDown, Filter, ArrowUpRight, Search, Activity } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import Breadcrumb from "../components/Breadcrumb";
 
 const SIGNALS = [
   { id: 1, name: "宁德时代", logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=64&h=64&fit=crop&q=80", signal: "发布Q3财报，净利润同比增长15%", type: "利好", typeColor: "text-green-700 bg-green-100 border-green-200", date: "今天 10:30" },
@@ -32,13 +33,7 @@ export default function FollowEnterprise() {
     <div className="flex flex-col gap-6 pb-10 fade-in">
       {/* Header Actions */}
       <section className="flex items-center justify-between pt-4 pb-2">
-        <Link 
-          to="/"
-          className="flex items-center gap-2 text-slate-500 hover:text-blue-600 transition-colors bg-white px-4 py-2 rounded-xl shadow-sm border border-slate-200"
-        >
-          <ArrowLeft size={18} />
-          <span className="font-medium">返回首页</span>
-        </Link>
+        <Breadcrumb items={[{ label: "信号列表" }]} />
         <div className="flex-1 flex justify-center px-4">
           <div className="w-full max-w-[60%] relative">
              <div className="flex items-center bg-white rounded-full shadow-sm border border-slate-200 overflow-hidden h-[40px] focus-within:ring-2 focus-within:ring-blue-500/30 focus-within:border-blue-400 transition-all">

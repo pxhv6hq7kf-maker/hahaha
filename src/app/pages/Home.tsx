@@ -1,8 +1,9 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router";
-import { ChevronRight, Flame, ChevronLeft, ChevronRight as IconRight } from "lucide-react";
+import { ChevronRight, Flame, ChevronLeft, ChevronRight as IconRight, Sparkles, TrendingUp, Compass, ArrowUpRight, MapPin } from "lucide-react";
 import SearchBar from "../components/SearchBar";
 import { motion } from "motion/react";
+import { CITIES } from "../data/cities";
 
 const INDUSTRIES = ["新能源", "人工智能", "生物医药", "半导体", "低空经济", "量子计算", "消费电子", "云计算", "先进制造", "新材料", "物联网"];
 
@@ -64,36 +65,81 @@ const INDUSTRY_CHAIN_STAGES: Record<string, { phase: string; stages: string[] }[
   ],
 };
 
-const HOT_INDUSTRIES = [
-  { id: 1, name: "新能源汽车", heat: "98.5w", trend: "up" },
-  { id: 2, name: "人工智能", heat: "95.2w", trend: "up" },
-  { id: 3, name: "生物医药", heat: "88.7w", trend: "down" },
-  { id: 4, name: "半导体设备", heat: "85.1w", trend: "up" },
-  { id: 5, name: "低空经济", heat: "80.3w", trend: "up" },
-  { id: 6, name: "消费电子", heat: "76.4w", trend: "down" },
-  { id: 7, name: "量子计算", heat: "72.8w", trend: "up" },
-  { id: 8, name: "云计算", heat: "68.9w", trend: "down" },
-  { id: 9, name: "先进制造", heat: "65.2w", trend: "up" },
-  { id: 10, name: "固态电池", heat: "62.1w", trend: "up" },
+// NEXT50 成长潜力榜
+const NEXT50_ENTERPRISES = [
+  { id: 1, name: "摩尔线程", round: "B+轮", valuation: "320亿", logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=64&h=64&fit=crop&q=80" },
+  { id: 2, name: "智元机器人", round: "A+轮", valuation: "100亿", logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=64&h=64&fit=crop&q=80" },
+  { id: 3, name: "宇树科技", round: "B轮", valuation: "75亿", logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=64&h=64&fit=crop&q=80" },
+  { id: 4, name: "星纪魅族", round: "B轮", valuation: "150亿", logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=64&h=64&fit=crop&q=80" },
+  { id: 5, name: "黑芝麻智能", round: "C轮", valuation: "210亿", logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=64&h=64&fit=crop&q=80" },
+  { id: 6, name: "追觅科技", round: "C轮", valuation: "180亿", logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=64&h=64&fit=crop&q=80" },
+  { id: 7, name: "云鲸智能", round: "E轮", valuation: "140亿", logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=64&h=64&fit=crop&q=80" },
+  { id: 8, name: "海光信息", round: "Pre-IPO", valuation: "850亿", logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=64&h=64&fit=crop&q=80" },
+  { id: 9, name: "如鲲新材", round: "B轮", valuation: "68亿", logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=64&h=64&fit=crop&q=80" },
+  { id: 10, name: "天数智芯", round: "C+轮", valuation: "120亿", logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=64&h=64&fit=crop&q=80" },
 ];
 
-const HOT_ENTERPRISES = [
-  { id: 1, name: "宁德时代", heat: "125.4w", trend: "up", logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=64&h=64&fit=crop&q=80" },
-  { id: 2, name: "比亚迪", heat: "118.2w", trend: "up", logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=64&h=64&fit=crop&q=80" },
-  { id: 3, name: "中芯国际", heat: "105.7w", trend: "down", logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=64&h=64&fit=crop&q=80" },
-  { id: 4, name: "寒武纪", heat: "98.3w", trend: "up", logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=64&h=64&fit=crop&q=80" },
-  { id: 5, name: "恒瑞医药", heat: "92.1w", trend: "down", logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=64&h=64&fit=crop&q=80" },
-  { id: 6, name: "科大讯飞", heat: "88.5w", trend: "up", logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=64&h=64&fit=crop&q=80" },
-  { id: 7, name: "药明康德", heat: "85.2w", trend: "down", logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=64&h=64&fit=crop&q=80" },
-  { id: 8, name: "北方华创", heat: "81.9w", trend: "up", logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=64&h=64&fit=crop&q=80" },
-  { id: 9, name: "迈瑞医疗", heat: "78.4w", trend: "up", logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=64&h=64&fit=crop&q=80" },
-  { id: 10, name: "大疆创新", heat: "75.1w", trend: "up", logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=64&h=64&fit=crop&q=80" },
+// ATLAS 早小硬科技榜
+const ATLAS_ENTERPRISES = [
+  { id: 101, name: "壁仞科技", track: "AI推理芯片", city: "上海", round: "C轮", valuation: "180亿", logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=64&h=64&fit=crop&q=80" },
+  { id: 102, name: "清陶能源", track: "固态电池材料", city: "昆山", round: "D轮", valuation: "120亿", logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=64&h=64&fit=crop&q=80" },
+  { id: 103, name: "影石创新", track: "全景影像传感器", city: "深圳", round: "B轮", valuation: "85亿", logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=64&h=64&fit=crop&q=80" },
+  { id: 104, name: "思谋科技", track: "工业视觉检测", city: "深圳", round: "C轮", valuation: "95亿", logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=64&h=64&fit=crop&q=80" },
+  { id: 105, name: "星环科技", track: "基础数据库", city: "上海", round: "已上市", valuation: "130亿", logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=64&h=64&fit=crop&q=80" },
+  { id: 106, name: "禾赛科技", track: "激光雷达", city: "上海", round: "已上市", valuation: "210亿", logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=64&h=64&fit=crop&q=80" },
+  { id: 107, name: "曦智科技", track: "光计算芯片", city: "上海", round: "B+轮", valuation: "68亿", logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=64&h=64&fit=crop&q=80" },
+  { id: 108, name: "镁伽机器人", track: "生命科学自动化", city: "北京", round: "C轮", valuation: "72亿", logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=64&h=64&fit=crop&q=80" },
+  { id: 109, name: "本源量子", track: "量子计算整机", city: "合肥", round: "B轮", valuation: "55亿", logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=64&h=64&fit=crop&q=80" },
+  { id: 110, name: "时的半导体", track: "高精度ADC芯片", city: "深圳", round: "A+轮", valuation: "38亿", logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=64&h=64&fit=crop&q=80" },
 ];
+
+type Lang = "zh" | "en";
+
+const I18N = {
+  zh: {
+    tagline: "研究+认知，投资决策的底层支撑",
+    industryNav: "行业导航",
+    industryNavEn: "Industry Map",
+    next50Title: "成长潜力企业",
+    next50Subtitle: "High-Growth Tech Leaders · Top 50",
+    atlasTitle: "细分赛道科技榜",
+    atlasSubtitle: "Niche Tech Track Leaders · Top 50",
+    viewAll: "查看全部",
+    langLabel: "EN",
+  },
+  en: {
+    tagline: "Research + Cognition · The Foundation of Investment Decisions",
+    industryNav: "Industry Map",
+    industryNavEn: "",
+    next50Title: "High-Growth Leaders",
+    next50Subtitle: "NEXT50 · Top 50 Tech Companies",
+    atlasTitle: "Niche Tech Tracks",
+    atlasSubtitle: "ATLAS · Top 50 Deep-Tech Leaders",
+    viewAll: "View all",
+    langLabel: "中",
+  },
+};
 
 export default function Home() {
+  const [lang, setLang] = useState<Lang>(() => {
+    return (localStorage.getItem("app_lang") as Lang) || "zh";
+  });
+  const t = I18N[lang];
+
+  useEffect(() => {
+    const updateLang = () => {
+      setLang((localStorage.getItem("app_lang") as Lang) || "zh");
+    };
+    window.addEventListener("storage", updateLang);
+    const interval = setInterval(updateLang, 500);
+    return () => {
+      window.removeEventListener("storage", updateLang);
+      clearInterval(interval);
+    };
+  }, []);
+
   const [hoveredIndustry, setHoveredIndustry] = useState<string | null>(null);
   const [popupPos, setPopupPos] = useState<{ x: number; y: number } | null>(null);
-  const [activeTab, setActiveTab] = useState<"week" | "month">("week");
   const scrollRef = useRef<HTMLDivElement>(null);
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -143,27 +189,36 @@ export default function Home() {
             <span className="bg-blue-600 text-white p-2 rounded-xl"><Flame size={24} /></span>
             研知
           </h1>
-          <p className="text-slate-500 text-sm">研究+认知，投资决策的底层支撑</p>
+          <p className="text-slate-500 text-sm">{t.tagline}</p>
         </div>
         <SearchBar size="large" />
       </section>
 
-      {/* 2. 二级区域：行业筛选 */}
-      <section className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
+      {/* 2. 二级区域：行业筛选 - 玻璃态 */}
+      <motion.section
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+        className="bg-white/70 backdrop-blur-xl rounded-2xl p-5 shadow-lg shadow-slate-200/50 border border-white/80"
+      >
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-            行业筛选
+          <h2 className="text-base font-bold text-slate-800 flex items-center gap-2.5">
+            <span className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white">
+              <Compass size={14} />
+            </span>
+            <span className="tracking-wide">{t.industryNav}</span>
+            {t.industryNavEn && <span className="text-xs font-normal text-slate-400 ml-1">{t.industryNavEn}</span>}
           </h2>
         </div>
-        
+
         <div className="relative group flex items-center">
-          <button onClick={() => scrollTags("left")} className="absolute left-0 z-10 w-8 h-8 flex items-center justify-center bg-white/80 backdrop-blur-sm rounded-full shadow-sm border border-slate-100 text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-0 -ml-4">
+          <button onClick={() => scrollTags("left")} className="absolute left-0 z-10 w-8 h-8 flex items-center justify-center bg-white/90 backdrop-blur-sm rounded-full shadow-md border border-slate-200 text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-0 -ml-4 hover:bg-white hover:text-blue-600">
             <ChevronLeft size={16} />
           </button>
-          
-          <div 
-            ref={scrollRef} 
-            className="flex gap-3 overflow-x-auto scrollbar-hide py-1 px-1 scroll-smooth w-full"
+
+          <div
+            ref={scrollRef}
+            className="flex gap-2.5 overflow-x-auto scrollbar-hide py-1 px-1 scroll-smooth w-full"
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           >
             {INDUSTRIES.map(tag => (
@@ -172,119 +227,196 @@ export default function Home() {
                 to={`/industry/${encodeURIComponent(tag)}?industryName=${encodeURIComponent(tag)}`}
                 onMouseEnter={(e) => handleTagHover(tag, e)}
                 onMouseLeave={handleTagLeave}
-                className="whitespace-nowrap px-4 py-2 rounded-xl text-sm transition-all border bg-slate-50 text-slate-600 border-slate-200 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200"
+                className="group/tag whitespace-nowrap px-4 py-2 rounded-xl text-sm transition-all border bg-white text-slate-600 border-slate-200 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:text-blue-700 hover:border-blue-300 hover:shadow-md hover:shadow-blue-100/50"
               >
                 {tag}
               </Link>
             ))}
           </div>
-          
-          <button onClick={() => scrollTags("right")} className="absolute right-0 z-10 w-8 h-8 flex items-center justify-center bg-white/80 backdrop-blur-sm rounded-full shadow-sm border border-slate-100 text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-0 -mr-4">
+
+          <button onClick={() => scrollTags("right")} className="absolute right-0 z-10 w-8 h-8 flex items-center justify-center bg-white/90 backdrop-blur-sm rounded-full shadow-md border border-slate-200 text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-0 -mr-4 hover:bg-white hover:text-blue-600">
             <IconRight size={16} />
           </button>
         </div>
-      </section>
+      </motion.section>
 
-      {/* 3. 三级区域：热门榜单 */}
-      <section className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-        <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-4">
-          <div className="flex bg-slate-100 p-1 rounded-lg w-max">
-            <button
-              onClick={() => setActiveTab("week")}
-              className={`px-6 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                activeTab === "week" ? "bg-white text-blue-600 shadow-sm" : "text-slate-500 hover:text-slate-700"
-              }`}
-            >
-              周榜单
-            </button>
-            <button
-              onClick={() => setActiveTab("month")}
-              className={`px-6 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                activeTab === "month" ? "bg-white text-blue-600 shadow-sm" : "text-slate-500 hover:text-slate-700"
-              }`}
-            >
-              月榜单
-            </button>
-          </div>
+      {/* 3. 重点区域导航 */}
+      <motion.section
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.25 }}
+        className="bg-white/70 backdrop-blur-xl rounded-2xl p-5 shadow-lg shadow-slate-200/50 border border-white/80"
+      >
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-base font-bold text-slate-800 flex items-center gap-2.5">
+            <span className="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-white">
+              <MapPin size={14} />
+            </span>
+            <span className="tracking-wide">重点区域导航</span>
+            <span className="text-xs font-normal text-slate-400 ml-1">Regional Hub</span>
+          </h2>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* 热门行业 */}
-          <div className="flex-1 min-w-0">
-            <h3 className="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">
-              <span className="w-1 h-4 bg-blue-600 rounded-full"></span>
-              热门行业 TOP10
-            </h3>
-            <div className="space-y-1">
-              {HOT_INDUSTRIES.map((item, index) => (
-                <Link 
-                  key={item.id} 
-                  to={`/industry/${encodeURIComponent(item.id)}?industryName=${encodeURIComponent(item.name)}`}
-                  className="flex items-center justify-between p-3 hover:bg-slate-50 rounded-xl group transition-colors"
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <span className={`w-6 h-6 flex items-center justify-center rounded-md text-xs font-bold ${
-                      index < 3 ? "bg-rose-100 text-rose-600" : "bg-slate-100 text-slate-500"
-                    }`}>
-                      {index + 1}
-                    </span>
-                    <span className="font-medium text-slate-700 group-hover:text-blue-600 transition-colors truncate">
-                      {item.name}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm whitespace-nowrap">
-                    <span className="text-slate-500 font-medium">{item.heat}</span>
-                    <Flame size={14} className={item.trend === "up" ? "text-rose-500" : "text-slate-300"} />
-                  </div>
-                </Link>
-              ))}
+        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-10 gap-2.5">
+          {CITIES.map((city) => (
+            <Link
+              key={city.id}
+              to={`/city/${encodeURIComponent(city.id)}?cityName=${encodeURIComponent(city.name)}`}
+              className="flex flex-col items-center justify-center p-3 rounded-xl text-sm transition-all border bg-white text-slate-600 border-slate-200 hover:bg-gradient-to-br hover:from-orange-50 hover:to-amber-50 hover:text-orange-700 hover:border-orange-200 hover:shadow-md hover:shadow-orange-100/50 group"
+            >
+              <span className="text-base font-bold mb-0.5 group-hover:scale-105 transition-transform">{city.name}</span>
+              <span className="text-[10px] text-slate-400 group-hover:text-orange-500">{city.output}</span>
+            </Link>
+          ))}
+        </div>
+      </motion.section>
+
+      {/* 4. 三级区域：双榜单并列 - 独立卡片化设计 */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+        className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+      >
+        {/* NEXT50 成长潜力榜 */}
+        <section className="group relative bg-white rounded-2xl overflow-hidden shadow-lg shadow-slate-200/50 border border-slate-100 hover:shadow-xl hover:shadow-blue-100/50 transition-all duration-500 hover:-translate-y-0.5">
+          {/* 顶部渐变装饰条 */}
+          <div className="h-1.5 w-full bg-gradient-to-r from-blue-600 via-indigo-500 to-violet-500"></div>
+          {/* 右上角光晕装饰 */}
+          <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-blue-500/10 to-indigo-500/5 rounded-full blur-2xl -translate-y-8 translate-x-8 pointer-events-none"></div>
+
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-5">
+              <div>
+                <div className="flex items-center gap-2.5 mb-1">
+                  <span className="text-xs font-bold tracking-[0.15em] bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-2.5 py-1 rounded-md shadow-sm shadow-blue-200/50">NEXT50</span>
+                  <h3 className="text-lg font-bold text-slate-800 tracking-tight">{t.next50Title}</h3>
+                </div>
+                <p className="text-xs text-slate-400 ml-0.5 flex items-center gap-1">
+                  <TrendingUp size={11} className="text-blue-500" />
+                  {t.next50Subtitle}
+                </p>
+              </div>
+              <button className="text-xs text-slate-400 hover:text-blue-600 flex items-center gap-0.5 transition-colors group/btn">
+                {t.viewAll}
+                <ArrowUpRight size={13} className="group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
+              </button>
             </div>
-          </div>
 
-          <div className="hidden lg:block w-px bg-slate-100"></div>
-
-          {/* 热门企业 */}
-          <div className="flex-1 min-w-0">
-            <h3 className="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">
-              <span className="w-1 h-4 bg-blue-600 rounded-full"></span>
-              热门企业 TOP10
-            </h3>
             <div className="space-y-1">
-              {HOT_ENTERPRISES.map((item, index) => (
-                <Link 
-                  key={item.id} 
+              {NEXT50_ENTERPRISES.map((item, index) => (
+                <Link
+                  key={item.id}
                   to={`/enterprise/${encodeURIComponent(item.id)}?enterpriseName=${encodeURIComponent(item.name)}`}
-                  className="flex items-center justify-between p-3 hover:bg-slate-50 rounded-xl group transition-colors"
+                  className="flex items-center justify-between p-2.5 rounded-xl group/row transition-all duration-300 hover:bg-gradient-to-r hover:from-blue-50/80 hover:to-indigo-50/50 border border-transparent hover:border-blue-100"
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <span className={`w-6 h-6 flex items-center justify-center rounded-md text-xs font-bold ${
-                      index < 3 ? "bg-rose-100 text-rose-600" : "bg-slate-100 text-slate-500"
+                    <span className={`w-7 h-7 flex items-center justify-center rounded-lg text-xs font-bold transition-all ${
+                      index < 3
+                        ? "bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-md shadow-blue-200/50"
+                        : "bg-slate-100 text-slate-500 group-hover/row:bg-slate-200"
                     }`}>
                       {index + 1}
                     </span>
-                    <img src={item.logo} alt={item.name} className="w-6 h-6 rounded-full object-cover border border-slate-200 bg-white" />
-                    <span className="font-medium text-slate-700 group-hover:text-blue-600 transition-colors truncate">
+                    <div className="relative">
+                      <img src={item.logo} alt={item.name} className="w-8 h-8 rounded-lg object-cover border border-slate-200 bg-white shadow-sm" />
+                      {index < 3 && (
+                        <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full border-2 border-white"></span>
+                      )}
+                    </div>
+                    <p className="font-semibold text-slate-700 group-hover/row:text-blue-700 transition-colors truncate">
                       {item.name}
-                    </span>
+                    </p>
                   </div>
-                  <div className="flex items-center gap-2 text-sm whitespace-nowrap">
-                    <span className="text-slate-500 font-medium">{item.heat}</span>
-                    <Flame size={14} className={item.trend === "up" ? "text-rose-500" : "text-slate-300"} />
+                  <div className="text-right flex-shrink-0">
+                    <p className="text-xs font-semibold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md inline-block group-hover/row:bg-blue-100 group-hover/row:text-blue-700 transition-all">
+                      {item.round}
+                    </p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">{item.valuation}</p>
                   </div>
                 </Link>
               ))}
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+
+        {/* ATLAS 早小硬科技榜 */}
+        <section className="group relative bg-white rounded-2xl overflow-hidden shadow-lg shadow-slate-200/50 border border-slate-100 hover:shadow-xl hover:shadow-emerald-100/50 transition-all duration-500 hover:-translate-y-0.5">
+          {/* 顶部渐变装饰条 */}
+          <div className="h-1.5 w-full bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500"></div>
+          {/* 右上角光晕装饰 */}
+          <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-emerald-500/10 to-teal-500/5 rounded-full blur-2xl -translate-y-8 translate-x-8 pointer-events-none"></div>
+
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-5">
+              <div>
+                <div className="flex items-center gap-2.5 mb-1">
+                  <span className="text-xs font-bold tracking-[0.15em] bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-2.5 py-1 rounded-md shadow-sm shadow-emerald-200/50">ATLAS</span>
+                  <h3 className="text-lg font-bold text-slate-800 tracking-tight">{t.atlasTitle}</h3>
+                </div>
+                <p className="text-xs text-slate-400 ml-0.5 flex items-center gap-1">
+                  <Sparkles size={11} className="text-emerald-500" />
+                  {t.atlasSubtitle}
+                </p>
+              </div>
+              <button className="text-xs text-slate-400 hover:text-emerald-600 flex items-center gap-0.5 transition-colors group/btn">
+                {t.viewAll}
+                <ArrowUpRight size={13} className="group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
+              </button>
+            </div>
+
+            <div className="space-y-1">
+              {ATLAS_ENTERPRISES.map((item, index) => (
+                <Link
+                  key={item.id}
+                  to={`/enterprise/${encodeURIComponent(item.id)}?enterpriseName=${encodeURIComponent(item.name)}`}
+                  className="flex items-center justify-between p-2.5 rounded-xl group/row transition-all duration-300 hover:bg-gradient-to-r hover:from-emerald-50/80 hover:to-teal-50/50 border border-transparent hover:border-emerald-100"
+                >
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <span className={`w-7 h-7 flex items-center justify-center rounded-lg text-xs font-bold flex-shrink-0 transition-all ${
+                      index < 3
+                        ? "bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-200/50"
+                        : "bg-slate-100 text-slate-500 group-hover/row:bg-slate-200"
+                    }`}>
+                      {index + 1}
+                    </span>
+                    <div className="relative">
+                      <img src={item.logo} alt={item.name} className="w-8 h-8 rounded-lg object-cover border border-slate-200 bg-white shadow-sm flex-shrink-0" />
+                      {index < 3 && (
+                        <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full border-2 border-white"></span>
+                      )}
+                    </div>
+                    <p className="font-semibold text-slate-700 group-hover/row:text-emerald-700 transition-colors truncate">
+                      {item.name}
+                    </p>
+                    <span className="text-[10px] font-medium bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-700 px-2 py-0.5 rounded-md border border-emerald-200/60 flex-shrink-0 tracking-wide">
+                      {item.track}
+                    </span>
+                    <span className="text-[10px] font-medium bg-slate-50 text-slate-500 px-2 py-0.5 rounded-md border border-slate-200 flex-shrink-0">
+                      {item.city}
+                    </span>
+                  </div>
+                  <div className="text-right flex-shrink-0">
+                    <p className="text-xs font-semibold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md inline-block group-hover/row:bg-emerald-100 group-hover/row:text-emerald-700 transition-all">
+                      {item.round}
+                    </p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">{item.valuation}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      </motion.div>
 
       {/* 产业链阶段弹出面板 (fixed 定位，不被 overflow 裁切) */}
-      {hoveredIndustry && popupPos && INDUSTRY_CHAIN_STAGES[hoveredIndustry] && (
+      {/* {hoveredIndustry && popupPos && INDUSTRY_CHAIN_STAGES[hoveredIndustry] && (
         <motion.div
-          initial={{ opacity: 0, y: 4 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 4 }}
-          className="fixed bg-white border border-slate-200 shadow-xl rounded-xl p-4 z-50"
+          initial={{ opacity: 0, y: 4, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 4, scale: 0.98 }}
+          transition={{ duration: 0.15 }}
+          className="fixed bg-white/95 backdrop-blur-xl border border-slate-200 shadow-2xl rounded-xl p-4 z-50"
           style={{
             left: Math.max(8, Math.min(popupPos.x - 144, window.innerWidth - 296)),
             top: popupPos.y,
@@ -294,15 +426,15 @@ export default function Home() {
           onMouseLeave={handlePopupLeave}
         >
           <h4 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-1.5">
-            <span className="w-1 h-4 bg-blue-600 rounded-full"></span>
+            <span className="w-1 h-4 bg-gradient-to-b from-blue-500 to-indigo-600 rounded-full"></span>
             {hoveredIndustry}·产业链阶段
           </h4>
           {INDUSTRY_CHAIN_STAGES[hoveredIndustry].map((group) => (
             <div key={group.phase} className="mb-2.5 last:mb-0">
               <span className={`text-xs font-semibold px-2 py-0.5 rounded mr-1.5 ${
-                group.phase === "上游" ? "bg-emerald-50 text-emerald-600" :
-                group.phase === "中游" ? "bg-blue-50 text-blue-600" :
-                "bg-amber-50 text-amber-600"
+                group.phase === "上游" ? "bg-emerald-50 text-emerald-600 border border-emerald-100" :
+                group.phase === "中游" ? "bg-blue-50 text-blue-600 border border-blue-100" :
+                "bg-amber-50 text-amber-600 border border-amber-100"
               }`}>
                 {group.phase}
               </span>
@@ -320,7 +452,7 @@ export default function Home() {
             </div>
           ))}
         </motion.div>
-      )}
+      )} */}
 
     </div>
   );

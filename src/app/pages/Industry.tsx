@@ -1,7 +1,8 @@
 import { useState, useMemo, useEffect } from "react";
 import { useParams, Link, useSearchParams } from "react-router";
-import { ArrowLeft, Maximize2, Minimize2, ChevronDown, Clock, Activity, BarChart3, TrendingUp } from "lucide-react";
+import { ArrowLeft, Maximize2, Minimize2, ChevronDown, Clock, Activity, BarChart3, TrendingUp, MapPin, Building2, DollarSign, Users, ShieldAlert, Cpu, Landmark, Heart, HeartOff } from "lucide-react";
 import SearchBar from "../components/SearchBar";
+import Breadcrumb from "../components/Breadcrumb";
 
 // 产业链阶段数据
 const CHAIN_STAGES: Record<string, { phase: string; stages: string[] }[]> = {
@@ -163,6 +164,7 @@ export default function Industry() {
   const { industryId } = useParams();
   const [searchParams] = useSearchParams();
   const industryName = searchParams.get("industryName") || decodeURIComponent(industryId || "未命名行业");
+  const cityName = searchParams.get("cityName");
   const stageParam = searchParams.get("stage");
 
   const [isGraphExpanded, setIsGraphExpanded] = useState(false);
@@ -171,6 +173,27 @@ export default function Industry() {
   const [selectedQualification, setSelectedQualification] = useState<string>("全部");
   const [selectedEstablishment, setSelectedEstablishment] = useState<string>("全部");
   const [selectedFunding, setSelectedFunding] = useState<string>("全部");
+
+  // 关注功能
+  const [isFollowed, setIsFollowed] = useState(false);
+
+  useEffect(() => {
+    const followed: string[] = JSON.parse(localStorage.getItem("followed_industries") || "[]");
+    setIsFollowed(followed.includes(industryName));
+  }, [industryName]);
+
+  const toggleFollow = () => {
+    const followed: string[] = JSON.parse(localStorage.getItem("followed_industries") || "[]");
+    if (isFollowed) {
+      const next = followed.filter(name => name !== industryName);
+      localStorage.setItem("followed_industries", JSON.stringify(next));
+      setIsFollowed(false);
+    } else {
+      followed.push(industryName);
+      localStorage.setItem("followed_industries", JSON.stringify(followed));
+      setIsFollowed(true);
+    }
+  };
 
   const filterOptions = {
     region: ["全部", "北京市", "天津市", "上海市", "重庆市", "河北省", "山西省", "辽宁省", "吉林省", "黑龙江省", "江苏省", "浙江省", "安徽省", "福建省", "江西省", "山东省", "河南省", "湖北省", "湖南省", "广东省", "海南省", "四川省", "贵州省", "云南省", "陕西省", "甘肃省", "青海省", "台湾省", "内蒙古自治区", "广西壮族自治区", "西藏自治区", "宁夏回族自治区", "新疆维吾尔自治区", "香港特别行政区", "澳门特别行政区"],
@@ -206,19 +229,33 @@ export default function Industry() {
     <div className="flex flex-col gap-6 pb-10 fade-in">
       {/* 1. 顶部区域 */}
       <section className="flex items-center justify-between pt-4 pb-2">
-        <Link 
-          to="/"
-          className="flex items-center gap-2 text-slate-500 hover:text-blue-600 transition-colors bg-white px-4 py-2 rounded-xl shadow-sm border border-slate-200"
-        >
-          <ArrowLeft size={18} />
-          <span className="font-medium">返回首页</span>
-        </Link>
+        <Breadcrumb items={cityName
+            ? [
+                { label: cityName, to: `/city/${encodeURIComponent(cityName)}?cityName=${encodeURIComponent(cityName)}` },
+                { label: industryName }
+              ]
+            : [{ label: industryName }
+          ]} />
         <div className="flex-1 flex justify-center px-4">
           <div className="w-full max-w-[60%]">
             <SearchBar size="small" placeholder="搜索行业/企业" />
           </div>
         </div>
-        <div className="w-[114px]"></div> {/* Spacer for balance */}
+        <button
+          onClick={toggleFollow}
+          className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium transition-all shadow-sm border ${
+            isFollowed
+              ? "bg-rose-500 text-white border-rose-500"
+              : "bg-white text-slate-600 hover:text-rose-600 hover:border-rose-200 hover:bg-rose-50 border-slate-200"
+          }`}
+        >
+          {isFollowed ? (
+            <Heart size={16} fill="white" />
+          ) : (
+            <Heart size={16} />
+          )}
+          {isFollowed ? "已关注" : "关注行业"}
+        </button>
       </section>
 
       {/* 2. 核心区域：行业知识图谱 */}
@@ -278,6 +315,162 @@ export default function Industry() {
               </div>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* 行业总览 */}
+      <section className={`bg-white rounded-2xl shadow-sm border border-slate-200 p-6 ${isGraphExpanded ? "opacity-0 pointer-events-none hidden" : "opacity-100"}`}>
+        <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2 mb-6 pb-3 border-b border-slate-100">
+          <span className="w-1 h-5 bg-blue-600 rounded-full"></span>
+          {industryName} 行业总览
+        </h2>
+
+        {/* 产业演进画像 */}
+        <div className="mb-6">
+          <h3 className="text-sm font-bold text-slate-700 mb-3">产业演进画像</h3>
+          <div className="flex items-center gap-1">
+            {[
+              { label: "萌芽期", desc: "技术探索，商业模式未验证", active: false },
+              { label: "初创期", desc: "产品原型出现，早期用户验证", active: false },
+              { label: "成长期", desc: "需求爆发，企业快速扩张", active: true },
+              { label: "成熟期", desc: "增速放缓，格局趋于稳定", active: false },
+              { label: "衰退期", desc: "替代技术出现，市场萎缩", active: false },
+            ].map((stage, i) => (
+              <div key={stage.label} className="flex-1 flex flex-col items-center relative">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold z-10 ${
+                  stage.active
+                    ? "bg-blue-600 text-white shadow-md shadow-blue-500/30 ring-4 ring-blue-100"
+                    : "bg-slate-100 text-slate-400"
+                }`}>
+                  {i + 1}
+                </div>
+                <div className={`text-xs font-bold mt-2 ${stage.active ? "text-blue-600" : "text-slate-400"}`}>{stage.label}</div>
+                <div className={`text-[10px] mt-0.5 text-center leading-tight ${stage.active ? "text-blue-500" : "text-slate-300"}`}>{stage.desc}</div>
+                {i < 4 && <div className={`absolute top-4 left-1/2 w-full h-0.5 ${i < 2 ? "bg-slate-200" : stage.active ? "bg-blue-300" : "bg-slate-200"}`}></div>}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* 核心指标卡片 */}
+        <div className="grid grid-cols-4 gap-3 mb-6">
+          {[
+            { icon: <Building2 size={16} />, label: "企业总数", value: "2.4万家", sub: "同比+12%", color: "blue" },
+            { icon: <DollarSign size={16} />, label: "市场规模", value: "1.8万亿", sub: "同比+18%", color: "emerald" },
+            { icon: <TrendingUp size={16} />, label: "总体营收", value: "9,200亿", sub: "同比+22%", color: "violet" },
+            { icon: <Users size={16} />, label: "从业人数", value: "380万", sub: "同比+8%", color: "amber" },
+          ].map((card) => (
+            <div key={card.label} className={`rounded-xl p-4 border ${
+              card.color === "blue" ? "bg-blue-50 border-blue-100" :
+              card.color === "emerald" ? "bg-emerald-50 border-emerald-100" :
+              card.color === "violet" ? "bg-violet-50 border-violet-100" :
+              "bg-amber-50 border-amber-100"
+            }`}>
+              <div className={`flex items-center gap-1.5 text-xs font-medium mb-2 ${
+                card.color === "blue" ? "text-blue-600" :
+                card.color === "emerald" ? "text-emerald-600" :
+                card.color === "violet" ? "text-violet-600" :
+                "text-amber-600"
+              }`}>
+                {card.icon} {card.label}
+              </div>
+              <div className="text-xl font-bold text-slate-800">{card.value}</div>
+              <div className="text-xs text-slate-500 mt-1">{card.sub}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* 区域分布 + 竞争格局 */}
+        <div className="grid grid-cols-2 gap-4 mb-6">
+          <div>
+            <h3 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-1.5">
+              <MapPin size={14} className="text-blue-600" /> 区域分布
+            </h3>
+            <div className="space-y-2">
+              {[
+                { region: "长三角", pct: 32 },
+                { region: "珠三角", pct: 24 },
+                { region: "京津冀", pct: 18 },
+                { region: "中西部", pct: 16 },
+                { region: "海外", pct: 10 },
+              ].map((r) => (
+                <div key={r.region} className="flex items-center gap-3">
+                  <span className="text-xs text-slate-600 w-12 text-right font-medium">{r.region}</span>
+                  <div className="flex-1 h-5 bg-slate-100 rounded-full overflow-hidden">
+                    <div className="h-full bg-gradient-to-r from-blue-500 to-blue-400 rounded-full transition-all" style={{ width: `${r.pct}%` }}></div>
+                  </div>
+                  <span className="text-xs font-bold text-slate-700 w-10">{r.pct}%</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div>
+            <h3 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-1.5">
+              <BarChart3 size={14} className="text-blue-600" /> 竞争格局
+            </h3>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-slate-500">市场集中度 CR3</span>
+                <span className="font-bold text-slate-800">28%</span>
+              </div>
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-slate-500">市场集中度 CR5</span>
+                <span className="font-bold text-slate-800">36%</span>
+              </div>
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-slate-500">市场集中度 CR10</span>
+                <span className="font-bold text-slate-800">48%</span>
+              </div>
+              <div className="h-px bg-slate-100 my-1"></div>
+              <div className="text-[11px] text-slate-500 leading-relaxed">
+                行业整体呈分散竞争格局，头部企业优势逐步扩大。第一梯队（市占率{'>'}5%）共3家，第二梯队（1%-5%）共12家，其余为长尾企业。
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 主要技术与壁垒 + 政策资本环境 */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <h3 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-1.5">
+              <Cpu size={14} className="text-blue-600" /> 主要技术与壁垒
+            </h3>
+            <div className="space-y-2">
+              {[
+                { tech: "AI大模型技术", level: "高", color: "bg-rose-50 text-rose-600 border-rose-200" },
+                { tech: "核心算法专利", level: "高", color: "bg-rose-50 text-rose-600 border-rose-200" },
+                { tech: "数据资产积累", level: "中", color: "bg-amber-50 text-amber-600 border-amber-200" },
+                { tech: "行业know-how", level: "中", color: "bg-amber-50 text-amber-600 border-amber-200" },
+                { tech: "人才密度", level: "高", color: "bg-rose-50 text-rose-600 border-rose-200" },
+              ].map((t) => (
+                <div key={t.tech} className="flex items-center justify-between py-1.5 px-3 bg-slate-50 rounded-lg border border-slate-100">
+                  <span className="text-xs text-slate-700 font-medium">{t.tech}</span>
+                  <span className={`text-[10px] px-2 py-0.5 rounded border font-bold ${t.color}`}>
+                    壁垒{t.level}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div>
+            <h3 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-1.5">
+              <Landmark size={14} className="text-blue-600" /> 政策资本环境
+            </h3>
+            <div className="space-y-2">
+              <div className="py-2 px-3 bg-emerald-50 rounded-lg border border-emerald-100">
+                <div className="text-xs font-bold text-emerald-700 mb-1">政策利好</div>
+                <div className="text-[11px] text-emerald-600 leading-relaxed">十四五规划重点扶持，多地出台产业专项补贴及税收优惠，行业准入门槛优化</div>
+              </div>
+              <div className="py-2 px-3 bg-blue-50 rounded-lg border border-blue-100">
+                <div className="text-xs font-bold text-blue-700 mb-1">资本热度</div>
+                <div className="text-[11px] text-blue-600 leading-relaxed">2025年行业融资总额超800亿元，同比+25%，头部企业估值持续走高</div>
+              </div>
+              <div className="py-2 px-3 bg-amber-50 rounded-lg border border-amber-100">
+                <div className="text-xs font-bold text-amber-700 mb-1">监管趋势</div>
+                <div className="text-[11px] text-amber-600 leading-relaxed">数据安全法、算法备案等合规要求趋严，需持续关注政策边际变化</div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -394,7 +587,7 @@ export default function Industry() {
                 {currentEnterprises.slice(0, 15).map((item, index) => (
                   <Link
                     key={item.id}
-                    to={`/enterprise/${encodeURIComponent(item.id)}?enterpriseName=${encodeURIComponent(item.name)}&fromIndustry=${encodeURIComponent(industryId || "")}`}
+                    to={`/enterprise/${encodeURIComponent(item.id)}?enterpriseName=${encodeURIComponent(item.name)}&industryName=${encodeURIComponent(industryName)}${cityName ? `&cityName=${encodeURIComponent(cityName)}` : ""}`}
                     className="flex items-center justify-between p-3.5 hover:bg-slate-50 rounded-xl group transition-all border border-transparent hover:border-slate-100"
                   >
                     <div className="flex items-center gap-4">

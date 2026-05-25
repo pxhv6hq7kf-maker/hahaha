@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router";
-import { User, Star, FileText, Flame, ChevronRight, Loader2, CheckCircle2, Clock } from "lucide-react";
+import { User, Star, FileText, Flame, ChevronRight, Loader2, CheckCircle2, Clock, Bell } from "lucide-react";
 
 const FAVORITE_ENTERPRISES = [
   { id: 1, name: "宁德时代", industry: "新能源", logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=64&h=64&fit=crop&q=80" },
@@ -40,6 +40,21 @@ type TabKey = typeof TABS[number]["key"];
 export default function Profile() {
   const [activeTab, setActiveTab] = useState<TabKey>("enterprises");
   const [generationStatuses, setGenerationStatuses] = useState<GenerationStatus[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    const updateCount = () => {
+      try {
+        const notifications = JSON.parse(localStorage.getItem("notifications") || "[]");
+        setUnreadCount(notifications.filter((n: { read?: boolean }) => !n.read).length);
+      } catch {
+        setUnreadCount(0);
+      }
+    };
+    updateCount();
+    const interval = setInterval(updateCount, 2000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const loadStatuses = () => {
@@ -98,10 +113,22 @@ export default function Profile() {
           <div className="w-16 h-16 rounded-full bg-blue-50 border-2 border-blue-200 flex items-center justify-center">
             <User size={28} className="text-blue-600" />
           </div>
-          <div>
+          <div className="flex-1">
             <h1 className="text-xl font-bold text-slate-800">用户</h1>
             <p className="text-sm text-slate-500 mt-1">收藏 {FAVORITE_ENTERPRISES.length} 家企业 · {DOWNLOADED_REPORTS.length} 份研报 · {FOLLOWED_INDUSTRIES.length} 个行业</p>
           </div>
+          <Link
+            to="/notifications?from=profile"
+            className="relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors bg-slate-50 text-slate-600 hover:bg-blue-50 hover:text-blue-600 border border-slate-200 hover:border-blue-200"
+          >
+            <Bell size={18} />
+            消息中心
+            {unreadCount > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-4.5 bg-rose-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1 leading-none">
+                {unreadCount > 9 ? "9+" : unreadCount}
+              </span>
+            )}
+          </Link>
         </div>
       </section>
 
@@ -213,7 +240,7 @@ export default function Profile() {
             {DOWNLOADED_REPORTS.map((item, index) => (
               <Link
                 key={item.id}
-                to={`/report/${item.reportId}?enterpriseId=${item.enterpriseId}`}
+                to={`/report/${item.reportId}?enterpriseId=${item.enterpriseId}&enterpriseName=${encodeURIComponent(item.enterprise)}`}
                 className="flex items-center justify-between p-3.5 hover:bg-slate-50 rounded-xl group transition-all border border-transparent hover:border-slate-100"
               >
                 <div className="flex items-center gap-4">

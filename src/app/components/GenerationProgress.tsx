@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { Link } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Search, Brain, FileText, TrendingUp, ShieldAlert, Building2, Briefcase, Globe,
@@ -59,39 +60,38 @@ const SEARCH_AGENTS = [
 const ANALYSIS_SECTIONS = [
   {
     id: "intro",
-    title: "企业基本介绍",
+    title: "产业前景分析",
     icon: <Building2 size={16} />,
     color: "text-blue-600",
-    brief: "成立于2015年，是国内领先的科技创新企业，专注于数字化、智能化全栈解决方案。2025年度营收128.5亿元，同比增长32.7%，近三年CAGR 28.5%。",
+  
   },
   {
     id: "business",
-    title: "核心业务介绍",
+    title: "人才团队建设",
     icon: <Briefcase size={16} />,
     color: "text-indigo-600",
-    brief: "智能硬件（营收占比42%，毛利率38%）、行业SaaS（占比35%，毛利率62%）、数据分析服务（占比23%，毛利率55%），客户续约率92%。",
   },
   {
     id: "projects",
-    title: "近期项目介绍",
+    title: "核心科技属性",
     icon: <Globe size={16} />,
     color: "text-violet-600",
-    brief: "AI推理芯片已流片、东南亚区域总部落地、智慧医疗平台2.0中标5亿+订单、与宁德时代签订独家协议、工信部试点示范项目。",
   },
   {
     id: "valuation",
-    title: "盈利预测与估值",
+    title: "经营可持续性",
     icon: <TrendingUp size={16} />,
     color: "text-emerald-600",
-    brief: "投资评级：增持。2026E营收170亿(+32%)，净利22亿(+38%)；当前PE 35x低于可比均值42x，目标价75-85元，上行空间20%-35%。",
   },
   {
     id: "risk",
-    title: "风险提示",
+    title: "投资建议及风险提示",
     icon: <ShieldAlert size={16} />,
     color: "text-rose-600",
-    brief: "行业竞争加剧、AI芯片量产不确定性、前5大客户集中度38%、核心团队减持、海外拓展受贸易摩擦影响。",
   },
+
+
+
 ];
 
 const SEARCH_DURATION = 35;
@@ -599,6 +599,36 @@ export default function GenerationProgress({ enterpriseName, enterpriseId, onCom
 
         {/* Right: 1/4 */}
         <div className="flex-[1] flex flex-col gap-4">
+          {/* Recommended Enterprises */}
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+            <h3 className="font-bold text-slate-800 text-sm mb-3 flex items-center gap-2">
+              <Building2 size={14} className="text-indigo-600" />
+              推荐的其他企业
+            </h3>
+            <div className="space-y-2">
+              {[
+                { id: "1", name: "宁德时代", industry: "新能源", logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=64&h=64&fit=crop&q=80", tag: "高增长" },
+                { id: "2", name: "比亚迪", industry: "新能源", logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=64&h=64&fit=crop&q=80", tag: "热门" },
+                { id: "3", name: "中芯国际", industry: "半导体", logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=64&h=64&fit=crop&q=80", tag: "国产替代" },
+                { id: "4", name: "寒武纪", industry: "人工智能", logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=64&h=64&fit=crop&q=80", tag: "高潜力" },
+                { id: "5", name: "恒瑞医药", industry: "生物医药", logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=64&h=64&fit=crop&q=80", tag: "创新药" },
+              ].map((ent) => (
+                <Link
+                  key={ent.id}
+                  to={`/enterprise/${encodeURIComponent(ent.id)}?enterpriseName=${encodeURIComponent(ent.name)}`}
+                  className="flex items-center gap-2 p-2 rounded-lg hover:bg-slate-50 transition-colors group"
+                >
+                  <img src={ent.logo} alt={ent.name} className="w-7 h-7 rounded-full border border-slate-200" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[12px] font-semibold text-slate-700 group-hover:text-blue-600 truncate">{ent.name}</p>
+                    <p className="text-[10px] text-slate-400">{ent.industry}</p>
+                  </div>
+                  <span className="text-[9px] bg-indigo-50 text-indigo-600 px-1.5 py-0.5 rounded-full font-medium">{ent.tag}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+
           {/* Time & Status */}
           <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
             <h3 className="font-bold text-slate-800 text-sm mb-4 flex items-center gap-2">
