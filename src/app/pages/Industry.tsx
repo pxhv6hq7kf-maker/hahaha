@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { useParams, Link, useSearchParams } from "react-router";
-import { ArrowLeft, Maximize2, Minimize2, ChevronDown, Clock, Activity, BarChart3, TrendingUp, MapPin, Building2, DollarSign, Users, ShieldAlert, Cpu, Landmark, Heart, HeartOff } from "lucide-react";
+import { ArrowLeft, Maximize2, Minimize2, ChevronDown, Clock, Activity, BarChart3, TrendingUp, MapPin, Building2, DollarSign, Users, ShieldAlert, Cpu, Landmark, Heart, HeartOff, Sparkles } from "lucide-react";
 import SearchBar from "../components/SearchBar";
 import Breadcrumb from "../components/Breadcrumb";
 
@@ -246,7 +246,7 @@ export default function Industry() {
           className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium transition-all shadow-sm border ${
             isFollowed
               ? "bg-rose-500 text-white border-rose-500"
-              : "bg-white text-slate-600 hover:text-rose-600 hover:border-rose-200 hover:bg-rose-50 border-slate-200"
+              : "bg-white text-slate-600 hover:text-blue-600 hover:border-rose-200 hover:bg-rose-50 border-slate-200"
           }`}
         >
           {isFollowed ? (
@@ -325,150 +325,189 @@ export default function Industry() {
           {industryName} 行业总览
         </h2>
 
-        {/* 产业演进画像 */}
+        {/* 1. 产业发展阶段 */}
         <div className="mb-6">
-          <h3 className="text-sm font-bold text-slate-700 mb-3">产业演进画像</h3>
+          <h3 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-1.5">
+            <span className="w-1 h-3.5 bg-blue-600 rounded-full"></span>
+            产业发展阶段
+          </h3>
           <div className="flex items-center gap-1">
             {[
-              { label: "萌芽期", desc: "技术探索，商业模式未验证", active: false },
-              { label: "初创期", desc: "产品原型出现，早期用户验证", active: false },
-              { label: "成长期", desc: "需求爆发，企业快速扩张", active: true },
-              { label: "成熟期", desc: "增速放缓，格局趋于稳定", active: false },
-              { label: "衰退期", desc: "替代技术出现，市场萎缩", active: false },
+              { label: "起步", desc: "技术验证期", active: false },
+              { label: "成长", desc: "规模化落地", active: true },
+              { label: "成熟", desc: "格局稳定化", active: false },
+              { label: "升级转型", desc: "技术迭代期", active: false },
+              { label: "衰退", desc: "替代技术涌现", active: false },
             ].map((stage, i) => (
               <div key={stage.label} className="flex-1 flex flex-col items-center relative">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold z-10 ${
+                <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold z-10 transition-all ${
                   stage.active
-                    ? "bg-blue-600 text-white shadow-md shadow-blue-500/30 ring-4 ring-blue-100"
+                    ? "bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/30 ring-4 ring-blue-100 scale-105"
                     : "bg-slate-100 text-slate-400"
                 }`}>
                   {i + 1}
                 </div>
-                <div className={`text-xs font-bold mt-2 ${stage.active ? "text-blue-600" : "text-slate-400"}`}>{stage.label}</div>
+                <div className={`text-xs font-bold mt-2 ${stage.active ? "text-blue-700" : "text-slate-400"}`}>{stage.label}</div>
                 <div className={`text-[10px] mt-0.5 text-center leading-tight ${stage.active ? "text-blue-500" : "text-slate-300"}`}>{stage.desc}</div>
-                {i < 4 && <div className={`absolute top-4 left-1/2 w-full h-0.5 ${i < 2 ? "bg-slate-200" : stage.active ? "bg-blue-300" : "bg-slate-200"}`}></div>}
+                {i < 4 && <div className={`absolute top-[18px] left-1/2 w-full h-0.5 ${i < 1 ? "bg-slate-200" : stage.active ? "bg-gradient-to-r from-blue-400 to-slate-200" : "bg-slate-200"}`}></div>}
               </div>
             ))}
           </div>
         </div>
 
-        {/* 核心指标卡片 */}
-        <div className="grid grid-cols-4 gap-3 mb-6">
-          {[
-            { icon: <Building2 size={16} />, label: "企业总数", value: "2.4万家", sub: "同比+12%", color: "blue" },
-            { icon: <DollarSign size={16} />, label: "市场规模", value: "1.8万亿", sub: "同比+18%", color: "emerald" },
-            { icon: <TrendingUp size={16} />, label: "总体营收", value: "9,200亿", sub: "同比+22%", color: "violet" },
-            { icon: <Users size={16} />, label: "从业人数", value: "380万", sub: "同比+8%", color: "amber" },
-          ].map((card) => (
-            <div key={card.label} className={`rounded-xl p-4 border ${
-              card.color === "blue" ? "bg-blue-50 border-blue-100" :
-              card.color === "emerald" ? "bg-emerald-50 border-emerald-100" :
-              card.color === "violet" ? "bg-violet-50 border-violet-100" :
-              "bg-amber-50 border-amber-100"
-            }`}>
-              <div className={`flex items-center gap-1.5 text-xs font-medium mb-2 ${
-                card.color === "blue" ? "text-blue-600" :
-                card.color === "emerald" ? "text-emerald-600" :
-                card.color === "violet" ? "text-violet-600" :
-                "text-amber-600"
-              }`}>
-                {card.icon} {card.label}
-              </div>
-              <div className="text-xl font-bold text-slate-800">{card.value}</div>
-              <div className="text-xs text-slate-500 mt-1">{card.sub}</div>
-            </div>
-          ))}
-        </div>
+        {/* 2. 综合总结：资本+技术+政策三维研判 */}
+        <div className="mb-6 bg-gradient-to-br from-slate-50 to-blue-50/30 rounded-xl p-5 border border-blue-100/60">
+          <h3 className="text-sm font-bold text-slate-700 mb-4 flex items-center gap-1.5">
+            <span className="w-1 h-3.5 bg-gradient-to-b from-blue-600 to-indigo-600 rounded-full"></span>
+            综合总结 · 资本+技术+政策三维度研判
+          </h3>
 
-        {/* 区域分布 + 竞争格局 */}
-        <div className="grid grid-cols-2 gap-4 mb-6">
+          {/* 三维度标签 */}
+          <div className="flex flex-wrap gap-3 mb-4">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 border border-blue-200">
+              <span className="text-xs font-bold text-blue-700">资本</span>
+              <span className="text-sm font-semibold text-blue-600">高</span>
+            </div>
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-violet-50 border border-violet-200">
+              <span className="text-xs font-bold text-violet-700">技术</span>
+              <span className="text-sm font-semibold text-violet-600">高</span>
+            </div>
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200">
+              <span className="text-xs font-bold text-slate-700">政策</span>
+              <span className="text-sm font-semibold text-slate-600">强</span>
+            </div>
+            <div className="ml-auto flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
+              <span className="text-xs font-medium">赛道评级</span>
+              <span className="text-base font-bold">顶级赛道</span>
+            </div>
+          </div>
+
+          {/* 推荐投资区域 */}
           <div>
-            <h3 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-1.5">
-              <MapPin size={14} className="text-blue-600" /> 区域分布
-            </h3>
-            <div className="space-y-2">
+            <div className="text-xs font-semibold text-slate-600 mb-2">推荐投资区域：</div>
+            <div className="flex flex-wrap gap-2">
               {[
-                { region: "长三角", pct: 32 },
-                { region: "珠三角", pct: 24 },
-                { region: "京津冀", pct: 18 },
-                { region: "中西部", pct: 16 },
-                { region: "海外", pct: 10 },
+                { name: "上海", tag: "集成电路核心集聚区" },
+                { name: "深圳", tag: "AI芯片与应用" },
+                { name: "北京", tag: "大模型与算法" },
+                { name: "合肥", tag: "算力与存储芯片" },
+                { name: "无锡", tag: "芯片制造产业链" },
               ].map((r) => (
-                <div key={r.region} className="flex items-center gap-3">
-                  <span className="text-xs text-slate-600 w-12 text-right font-medium">{r.region}</span>
-                  <div className="flex-1 h-5 bg-slate-100 rounded-full overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-blue-500 to-blue-400 rounded-full transition-all" style={{ width: `${r.pct}%` }}></div>
-                  </div>
-                  <span className="text-xs font-bold text-slate-700 w-10">{r.pct}%</span>
-                </div>
+                <Link
+                  key={r.name}
+                  to={`/city/${encodeURIComponent(r.name)}?cityName=${encodeURIComponent(r.name)}`}
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white border border-slate-200 text-xs text-slate-700 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 transition-colors"
+                >
+                  <span className="font-semibold">{r.name}</span>
+                  <span className="text-slate-400">·</span>
+                  <span className="text-slate-500">{r.tag}</span>
+                </Link>
               ))}
-            </div>
-          </div>
-          <div>
-            <h3 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-1.5">
-              <BarChart3 size={14} className="text-blue-600" /> 竞争格局
-            </h3>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-slate-500">市场集中度 CR3</span>
-                <span className="font-bold text-slate-800">28%</span>
-              </div>
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-slate-500">市场集中度 CR5</span>
-                <span className="font-bold text-slate-800">36%</span>
-              </div>
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-slate-500">市场集中度 CR10</span>
-                <span className="font-bold text-slate-800">48%</span>
-              </div>
-              <div className="h-px bg-slate-100 my-1"></div>
-              <div className="text-[11px] text-slate-500 leading-relaxed">
-                行业整体呈分散竞争格局，头部企业优势逐步扩大。第一梯队（市占率{'>'}5%）共3家，第二梯队（1%-5%）共12家，其余为长尾企业。
-              </div>
             </div>
           </div>
         </div>
 
-        {/* 主要技术与壁垒 + 政策资本环境 */}
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <h3 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-1.5">
-              <Cpu size={14} className="text-blue-600" /> 主要技术与壁垒
+        {/* 3. 全球资本流向 / 全球热点技术 */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+          {/* 全球资本流向 */}
+          <div className="bg-white rounded-xl p-5 border border-slate-100 shadow-sm">
+            <h3 className="text-sm font-bold text-slate-700 mb-4 flex items-center gap-1.5">
+              <span className="w-6 h-6 rounded-md bg-blue-50 flex items-center justify-center text-blue-600">
+                <DollarSign size={12} />
+              </span>
+              全球资本流向
             </h3>
-            <div className="space-y-2">
+            <div className="grid grid-cols-5 gap-2 mb-4">
               {[
-                { tech: "AI大模型技术", level: "高", color: "bg-rose-50 text-rose-600 border-rose-200" },
-                { tech: "核心算法专利", level: "高", color: "bg-rose-50 text-rose-600 border-rose-200" },
-                { tech: "数据资产积累", level: "中", color: "bg-amber-50 text-amber-600 border-amber-200" },
-                { tech: "行业know-how", level: "中", color: "bg-amber-50 text-amber-600 border-amber-200" },
-                { tech: "人才密度", level: "高", color: "bg-rose-50 text-rose-600 border-rose-200" },
-              ].map((t) => (
-                <div key={t.tech} className="flex items-center justify-between py-1.5 px-3 bg-slate-50 rounded-lg border border-slate-100">
-                  <span className="text-xs text-slate-700 font-medium">{t.tech}</span>
-                  <span className={`text-[10px] px-2 py-0.5 rounded border font-bold ${t.color}`}>
-                    壁垒{t.level}
-                  </span>
+                { region: "北美", pct: 42, trend: "+3.2%" },
+                { region: "中国", pct: 28, trend: "+5.8%" },
+                { region: "欧洲", pct: 15, trend: "+0.6%" },
+                { region: "东南亚", pct: 9, trend: "+2.1%" },
+                { region: "其他", pct: 6, trend: "-1.3%" },
+              ].map((r) => (
+                <div key={r.region} className="rounded-lg bg-slate-50 border border-slate-100 p-2.5">
+                  <div className="text-xs font-semibold text-slate-700">{r.region}</div>
+                  <div className="text-lg font-bold text-blue-600 mt-1">{r.pct}%</div>
+                  <div className={`text-[10px] font-medium ${r.trend.startsWith("+") ? "text-blue-600" : "text-slate-500"}`}>{r.trend}</div>
                 </div>
               ))}
             </div>
+            <div className="mb-3 text-xs font-semibold text-slate-600">融资额/估值最高项目</div>
+            <div className="overflow-hidden rounded-lg border border-slate-100">
+              <div className="grid grid-cols-[1.2fr_0.7fr_0.8fr_0.8fr_1.6fr] bg-slate-50 text-[11px] font-semibold text-slate-500 px-3 py-2">
+                <span>项目名称</span><span>轮次</span><span>金额</span><span>估值</span><span>投资方</span>
+              </div>
+              {[
+                { name: "Anthropic", round: "战略轮", amount: "40亿美元", valuation: "180亿美元", investor: "Amazon、Google、Menlo Ventures" },
+                { name: "智谱AI", round: "D轮", amount: "25亿元", valuation: "200亿元", investor: "社保基金、中金资本、君联资本" },
+                { name: "月之暗面", round: "B轮", amount: "10亿美元", valuation: "30亿美元", investor: "阿里巴巴、红杉中国、小红书" },
+                { name: "Figure AI", round: "B轮", amount: "6.75亿美元", valuation: "26亿美元", investor: "Microsoft、OpenAI、NVIDIA" },
+                { name: "Mistral AI", round: "C轮", amount: "6亿欧元", valuation: "58亿欧元", investor: "General Catalyst、Lightspeed" },
+              ].map((item) => (
+                <div key={item.name} className="grid grid-cols-[1.2fr_0.7fr_0.8fr_0.8fr_1.6fr] px-3 py-2.5 text-xs border-t border-slate-100 items-center hover:bg-blue-50/40 transition-colors">
+                  <span className="font-semibold text-slate-800">{item.name}</span>
+                  <span className="text-slate-500">{item.round}</span>
+                  <span className="font-semibold text-blue-600">{item.amount}</span>
+                  <span className="text-slate-700">{item.valuation}</span>
+                  <span className="text-slate-500 truncate">{item.investor}</span>
+                </div>
+              ))}
+            </div>
+            <p className="text-[11px] text-slate-400 mt-3 leading-relaxed">
+              全球资本集中流向大模型基础设施、具身智能、AI应用平台与算力芯片，北美仍占主导，中国市场在政策和应用场景驱动下融资增速更快。
+            </p>
           </div>
-          <div>
-            <h3 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-1.5">
-              <Landmark size={14} className="text-blue-600" /> 政策资本环境
+
+          {/* 全球热点技术 */}
+          <div className="bg-white rounded-xl p-5 border border-slate-100 shadow-sm">
+            <h3 className="text-sm font-bold text-slate-700 mb-4 flex items-center gap-1.5">
+              <span className="w-6 h-6 rounded-md bg-violet-50 flex items-center justify-center text-violet-600">
+                <Sparkles size={12} />
+              </span>
+              全球热点技术
             </h3>
-            <div className="space-y-2">
-              <div className="py-2 px-3 bg-emerald-50 rounded-lg border border-emerald-100">
-                <div className="text-xs font-bold text-emerald-700 mb-1">政策利好</div>
-                <div className="text-[11px] text-emerald-600 leading-relaxed">十四五规划重点扶持，多地出台产业专项补贴及税收优惠，行业准入门槛优化</div>
+            <div className="mb-4">
+              <div className="text-xs font-semibold text-slate-600 mb-2">主流技术路线数量及竞争态势</div>
+              <div className="grid grid-cols-2 gap-2.5">
+                {[
+                  { route: "大模型基础架构", players: "18+ 主流团队", status: "头部集中", desc: "闭源模型与开源模型并行，算力和数据壁垒持续提高" },
+                  { route: "端侧AI与小模型", players: "35+ 创业公司", status: "快速分化", desc: "手机、PC、车载和IoT成为落地最快场景" },
+                  { route: "AI Agent应用层", players: "60+ 项目", status: "高度拥挤", desc: "产品同质化明显，工作流和行业数据成为差异化关键" },
+                  { route: "具身智能/机器人", players: "25+ 核心玩家", status: "早期卡位", desc: "硬件成本、运动控制和场景闭环决定商业化速度" },
+                ].map((item) => (
+                  <div key={item.route} className="rounded-lg border border-violet-100 bg-violet-50/40 p-3">
+                    <div className="flex items-center justify-between gap-2 mb-1.5">
+                      <span className="text-xs font-bold text-slate-800">{item.route}</span>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-white text-violet-700 border border-violet-200 flex-shrink-0">{item.status}</span>
+                    </div>
+                    <div className="text-[11px] font-semibold text-violet-600 mb-1">{item.players}</div>
+                    <p className="text-[11px] text-slate-500 leading-relaxed">{item.desc}</p>
+                  </div>
+                ))}
               </div>
-              <div className="py-2 px-3 bg-blue-50 rounded-lg border border-blue-100">
-                <div className="text-xs font-bold text-blue-700 mb-1">资本热度</div>
-                <div className="text-[11px] text-blue-600 leading-relaxed">2025年行业融资总额超800亿元，同比+25%，头部企业估值持续走高</div>
+            </div>
+            <div>
+              <div className="text-xs font-semibold text-slate-600 mb-2">融资热度最高技术方向</div>
+              <div className="flex flex-wrap gap-1.5">
+                {[
+                  "通用大模型", "端侧AI", "AI Agent", "具身智能", "人形机器人",
+                  "脑机接口", "量子计算", "固态电池", "自动驾驶", "光芯片"
+                ].map((tech, i) => (
+                  <span
+                    key={tech}
+                    className={`text-xs px-2 py-1 rounded-md border ${
+                      i < 4
+                        ? "bg-violet-50 text-violet-700 border-violet-200 font-medium"
+                        : "bg-slate-50 text-slate-600 border-slate-200"
+                    }`}
+                  >
+                    {tech}
+                  </span>
+                ))}
               </div>
-              <div className="py-2 px-3 bg-amber-50 rounded-lg border border-amber-100">
-                <div className="text-xs font-bold text-amber-700 mb-1">监管趋势</div>
-                <div className="text-[11px] text-amber-600 leading-relaxed">数据安全法、算法备案等合规要求趋严，需持续关注政策边际变化</div>
-              </div>
+              <p className="mt-3 text-[11px] text-slate-400 leading-relaxed">
+                紫色标注为近6个月融资增速 Top 方向；当前竞争态势从“模型能力竞争”逐步转向“工程化交付、行业数据闭环、端侧部署成本”三类能力竞争。
+              </p>
             </div>
           </div>
         </div>
@@ -591,9 +630,7 @@ export default function Industry() {
                     className="flex items-center justify-between p-3.5 hover:bg-slate-50 rounded-xl group transition-all border border-transparent hover:border-slate-100"
                   >
                     <div className="flex items-center gap-4">
-                      <span className={`w-7 h-7 flex items-center justify-center rounded-lg text-sm font-bold shadow-sm ${
-                        index < 3 ? "bg-gradient-to-br from-rose-100 to-orange-100 text-rose-600 border border-rose-200" : "bg-slate-100 text-slate-500 border border-slate-200"
-                      }`}>
+                      <span className="w-7 h-7 flex items-center justify-center rounded-lg text-sm font-bold shadow-sm bg-slate-100 text-slate-500 border border-slate-200">
                         {index + 1}
                       </span>
                       <img src={item.logo} alt={item.name} className="w-8 h-8 rounded-full border border-slate-200 shadow-sm" />

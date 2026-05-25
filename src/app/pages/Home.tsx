@@ -319,11 +319,7 @@ export default function Home() {
                       {index + 1}
                     </span>
                     <div className="relative">
-                      <img src={item.logo} alt={item.name} className="w-8 h-8 rounded-lg object-cover border border-slate-200 bg-white shadow-sm" />
-                      {index < 3 && (
-                        <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full border-2 border-white"></span>
-                      )}
-                    </div>
+                      <img src={item.logo} alt={item.name} className="w-8 h-8 rounded-lg object-cover border border-slate-200 bg-white shadow-sm" />                    </div>
                     <p className="font-semibold text-slate-700 group-hover/row:text-blue-700 transition-colors truncate">
                       {item.name}
                     </p>
@@ -381,11 +377,7 @@ export default function Home() {
                       {index + 1}
                     </span>
                     <div className="relative">
-                      <img src={item.logo} alt={item.name} className="w-8 h-8 rounded-lg object-cover border border-slate-200 bg-white shadow-sm flex-shrink-0" />
-                      {index < 3 && (
-                        <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full border-2 border-white"></span>
-                      )}
-                    </div>
+                      <img src={item.logo} alt={item.name} className="w-8 h-8 rounded-lg object-cover border border-slate-200 bg-white shadow-sm flex-shrink-0" />                    </div>
                     <p className="font-semibold text-slate-700 group-hover/row:text-emerald-700 transition-colors truncate">
                       {item.name}
                     </p>
