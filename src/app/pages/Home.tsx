@@ -137,7 +137,7 @@ const I18N = {
 };
 
 export default function Home() {
-  const [showIntro, setShowIntro] = useState(true);
+  const [showIntro, setShowIntro] = useState(() => sessionStorage.getItem("home_intro_seen") !== "true");
   const [lang, setLang] = useState<Lang>(() => {
     return (localStorage.getItem("app_lang") as Lang) || "zh";
   });
@@ -347,7 +347,10 @@ export default function Home() {
               科技企业成长性多维评测，发现科技企业价值
             </p>
             <button
-              onClick={() => setShowIntro(false)}
+              onClick={() => {
+                sessionStorage.setItem("home_intro_seen", "true");
+                setShowIntro(false);
+              }}
               className="flex items-center gap-2 rounded-full bg-blue-600 px-7 py-3 text-sm font-bold text-white shadow-xl shadow-blue-300/60 transition-all hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-blue-400/70"
             >
               开始发现企业
