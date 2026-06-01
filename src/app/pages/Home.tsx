@@ -370,7 +370,7 @@ export default function Home() {
       <section className="pt-8 pb-15">
         <div className="text-center mb-15">
           <h1 className="relative mb-3 inline-flex items-center justify-center gap-3 text-4xl font-bold tracking-tight text-slate-900">
-            <span className="relative bg-gradient-to-br from-[#0052d9] via-[#1677ff] to-[#00a3ff] text-white p-2.5 rounded-xl shadow-lg shadow-blue-200/60"><Flame size={28} /></span>
+            <span className="relative bg-gradient-to-br from-[#0052d9] via-[#1677ff] to-[#00a3ff] text-white p-2.5 rounded-xl shadow-lg shadow-blue-200/60"><Flame size={24} /></span>
             <span className="relative">研知</span>
           </h1>
           <p className="text-slate-500 text-lg">{t.tagline}</p>
