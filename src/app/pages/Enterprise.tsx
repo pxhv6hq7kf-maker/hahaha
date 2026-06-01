@@ -374,7 +374,7 @@ export default function Enterprise() {
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-base font-bold text-slate-800 flex items-center gap-2">
                 <span className="w-1 h-4 bg-indigo-600 rounded-full"></span>
-                你可能感兴趣的企业
+                其他成长性潜力企业
               </h2>
               <Link to="/home" className="text-xs text-blue-600 hover:text-blue-700 font-medium">查看更多</Link>
             </div>

@@ -20,8 +20,8 @@ export default function SearchBar({
   const navigate = useNavigate();
 
   const isLarge = size === "large";
-  const heightClass = isLarge ? "h-[50px]" : "h-[40px]";
-  const widthClass = isLarge ? "w-[80%] max-w-[800px]" : "w-[60%] max-w-[600px]";
+  const heightClass = isLarge ? "h-[58px]" : "h-[40px]";
+  const widthClass = isLarge ? "w-[84%] max-w-[900px]" : "w-[60%] max-w-[600px]";
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -55,13 +55,13 @@ export default function SearchBar({
           isFocused ? "ring-2 ring-blue-500/30 border-blue-400 shadow-md" : "hover:border-slate-300 hover:shadow-md"
         } ${heightClass}`}
       >
-        <div className="pl-5 pr-2 text-slate-400">
-          <Search size={isLarge ? 20 : 18} />
+        <div className="pl-6 pr-3 text-slate-400">
+          <Search size={isLarge ? 22 : 18} />
         </div>
         <input
           type="text"
           className={`flex-1 bg-transparent outline-none text-slate-700 placeholder-slate-400 ${
-            isLarge ? "text-base" : "text-sm"
+            isLarge ? "text-lg" : "text-sm"
           }`}
           placeholder={placeholder}
           value={query}
@@ -73,12 +73,12 @@ export default function SearchBar({
         <button
           onClick={() => query.trim() && handleSearch(query, "industry")}
           className={`flex items-center justify-center bg-blue-600 text-white hover:bg-blue-700 transition-colors ${
-            isLarge ? "px-6 h-full font-medium tracking-wide gap-2" : "w-12 h-full"
+            isLarge ? "px-8 h-full font-medium tracking-wide gap-2.5 text-base" : "w-12 h-full"
           }`}
         >
           {isLarge ? (
             <>
-              <SearchCode size={18} />
+              <SearchCode size={20} />
               搜索
             </>
           ) : (

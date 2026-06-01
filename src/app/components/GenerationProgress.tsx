@@ -603,7 +603,7 @@ export default function GenerationProgress({ enterpriseName, enterpriseId, onCom
           <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
             <h3 className="font-bold text-slate-800 text-sm mb-3 flex items-center gap-2">
               <Building2 size={14} className="text-indigo-600" />
-              推荐的其他企业
+              其他成长性潜力企业
             </h3>
             <div className="space-y-2">
               {[
