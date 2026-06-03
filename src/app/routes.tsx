@@ -8,6 +8,7 @@ import FollowEnterprise from "./pages/FollowEnterprise";
 import Profile from "./pages/Profile";
 import Notifications from "./pages/Notifications";
 import City from "./pages/City";
+import RankingList from "./pages/RankingList";
 
 export const router = createBrowserRouter([
   {
@@ -17,6 +18,7 @@ export const router = createBrowserRouter([
       { index: true, element: <Navigate to="/home" replace /> },
       { path: "home", Component: Home },
       { path: "industry/:industryId", Component: Industry },
+      { path: "rankings/:rankType", Component: RankingList },
       { path: "enterprise/:enterpriseId", Component: Enterprise },
       { path: "report/:reportId", Component: Report },
       { path: "follow/enterprise", Component: FollowEnterprise },

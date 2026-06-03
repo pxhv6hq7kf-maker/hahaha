@@ -118,7 +118,6 @@ export default function FollowEnterprise() {
               
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <img src={signal.logo} alt={signal.name} className="w-12 h-12 rounded-xl border border-slate-100 object-cover shadow-sm bg-white" />
                   <div>
                     <h4 className="font-bold text-slate-800 group-hover:text-blue-600 transition-colors text-[15px]">{signal.name}</h4>
                     <span className="text-xs text-slate-400 mt-0.5 block">{signal.date}</span>

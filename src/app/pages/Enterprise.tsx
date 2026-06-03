@@ -141,6 +141,8 @@ export default function Enterprise() {
   const industryName = searchParams.get("industryName");
   const cityName = searchParams.get("cityName");
   const fromIndustry = searchParams.get("fromIndustry");
+  const rankType = searchParams.get("rankType");
+  const rankTitle = searchParams.get("rankTitle");
 
   const [collapsedSections, setCollapsedSections] = useState<string[]>([]);
   const [activeFilter, setActiveFilter] = useState("全部");
@@ -183,9 +185,30 @@ export default function Enterprise() {
     );
   };
 
-  const filteredDynamics = activeFilter === "全部" 
-    ? DYNAMICS 
+  const filteredDynamics = activeFilter === "全部"
+    ? DYNAMICS
     : DYNAMICS.filter(d => d.type === activeFilter);
+
+  const breadcrumbItems = rankType && rankTitle
+    ? [
+        { label: rankTitle, to: `/rankings/${encodeURIComponent(rankType)}` },
+        { label: enterpriseName }
+      ]
+    : cityName
+      ? [
+          { label: cityName, to: `/city/${encodeURIComponent(cityName)}?cityName=${encodeURIComponent(cityName)}` },
+          {
+            label: industryName as string,
+            to: `/industry/${encodeURIComponent(industryName as string)}?industryName=${encodeURIComponent(industryName as string)}&cityName=${encodeURIComponent(cityName)}`,
+          },
+          { label: enterpriseName }
+        ]
+      : industryName
+        ? [
+            { label: industryName as string, to: `/industry/${encodeURIComponent(industryName as string)}?industryName=${encodeURIComponent(industryName as string)}` },
+            { label: enterpriseName }
+          ]
+        : [{ label: enterpriseName }];
 
   return (
 
@@ -195,6 +218,7 @@ export default function Enterprise() {
         <GenerationProgress
           enterpriseName={enterpriseName}
           enterpriseId={enterpriseId || ""}
+          breadcrumbItems={breadcrumbItems}
           onComplete={handleGenerationComplete}
         />
       )}
@@ -204,23 +228,7 @@ export default function Enterprise() {
       <>
       <section className="pt-4 pb-2 flex items-center justify-center relative">
         <div className="absolute left-0">
-          <Breadcrumb items={
-            cityName
-              ? [
-                  { label: cityName, to: `/city/${encodeURIComponent(cityName)}?cityName=${encodeURIComponent(cityName)}` },
-                  {
-                    label: industryName as string,
-                    to: `/industry/${encodeURIComponent(industryName as string)}?industryName=${encodeURIComponent(industryName as string)}&cityName=${encodeURIComponent(cityName)}`,
-                  },
-                  { label: enterpriseName }
-                ]
-              : industryName
-              ? [
-                  { label: industryName as string, to: `/industry/${encodeURIComponent(industryName as string)}?industryName=${encodeURIComponent(industryName as string)}` },
-                  { label: enterpriseName }
-                ]
-              : [{ label: enterpriseName }]
-          } />
+          <Breadcrumb items={breadcrumbItems} />
         </div>
         <div className="w-full max-w-[60%]">
           <SearchBar size="small" placeholder="搜索行业/企业" />
@@ -237,9 +245,6 @@ export default function Enterprise() {
               <div className="px-6 pt-6 pb-6">
                 <div className="flex items-end gap-5 justify-between">
                   <div className="flex items-end gap-5">
-                    <div className="w-20 h-20 rounded-2xl bg-white p-1 shadow-lg border border-slate-100 flex-shrink-0">
-                      <img src="https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=128&h=128&fit=crop&q=80" alt="logo" className="w-full h-full rounded-xl object-cover" />
-                    </div>
                     <div className="pb-1">
                       <h1 className="text-2xl font-bold text-white tracking-tight flex items-center gap-3">
                       {enterpriseName}
@@ -392,7 +397,6 @@ export default function Enterprise() {
                   to={`/enterprise/${encodeURIComponent(ent.id)}?enterpriseName=${encodeURIComponent(ent.name)}`}
                   className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 transition-colors group border border-slate-100 hover:border-blue-100"
                 >
-                  <img src={ent.logo} alt={ent.name} className="w-10 h-10 rounded-full border border-slate-200" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-slate-700 group-hover:text-blue-600 truncate">{ent.name}</p>
                     <div className="flex flex-wrap gap-1 mt-1">

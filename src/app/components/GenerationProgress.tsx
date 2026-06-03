@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
+import Breadcrumb, { Crumb } from "./Breadcrumb";
 import {
   Search, Brain, FileText, TrendingUp, ShieldAlert, Building2, Briefcase, Globe,
   Bell, Zap, ChevronDown, ChevronUp, Loader2, CheckCircle2, Clock, Sparkles,
@@ -10,6 +11,7 @@ import {
 interface GenerationProgressProps {
   enterpriseName: string;
   enterpriseId: string;
+  breadcrumbItems?: Crumb[];
   onComplete: (data: string) => void;
 }
 
@@ -100,7 +102,7 @@ const TOTAL_ANALYSIS_DURATION = ANALYSIS_SECTIONS.length * ANALYSIS_SECTION_DURA
 
 type Phase = "search" | "analysis" | "complete";
 
-export default function GenerationProgress({ enterpriseName, enterpriseId, onComplete }: GenerationProgressProps) {
+export default function GenerationProgress({ enterpriseName, enterpriseId, breadcrumbItems = [{ label: enterpriseName }], onComplete }: GenerationProgressProps) {
   const [phase, setPhase] = useState<Phase>("search");
 
   // Track generating status in sessionStorage for Profile page
@@ -292,6 +294,7 @@ export default function GenerationProgress({ enterpriseName, enterpriseId, onCom
         time: new Date().toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" }),
         read: false,
         enterpriseId,
+        enterpriseName,
       });
       localStorage.setItem("notifications", JSON.stringify(notifications));
 
@@ -334,6 +337,8 @@ export default function GenerationProgress({ enterpriseName, enterpriseId, onCom
 
   return (
     <div className="flex flex-col gap-6 pb-10 fade-in">
+      <Breadcrumb items={breadcrumbItems} />
+
       {/* Header */}
       <div className="bg-gradient-to-r from-slate-800 to-slate-900 rounded-2xl p-6 text-white">
         <div className="flex items-center gap-3 mb-3">
@@ -618,7 +623,6 @@ export default function GenerationProgress({ enterpriseName, enterpriseId, onCom
                   to={`/enterprise/${encodeURIComponent(ent.id)}?enterpriseName=${encodeURIComponent(ent.name)}`}
                   className="flex items-center gap-2 p-2 rounded-lg hover:bg-slate-50 transition-colors group"
                 >
-                  <img src={ent.logo} alt={ent.name} className="w-7 h-7 rounded-full border border-slate-200" />
                   <div className="flex-1 min-w-0">
                     <p className="text-[12px] font-semibold text-slate-700 group-hover:text-blue-600 truncate">{ent.name}</p>
                     <p className="text-[10px] text-slate-400">{ent.industry}</p>

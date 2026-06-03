@@ -173,6 +173,7 @@ export default function Industry() {
   const [selectedQualification, setSelectedQualification] = useState<string>("全部");
   const [selectedEstablishment, setSelectedEstablishment] = useState<string>("全部");
   const [selectedFunding, setSelectedFunding] = useState<string>("全部");
+  const [activeEnterpriseTab, setActiveEnterpriseTab] = useState("龙头");
 
   // 关注功能
   const [isFollowed, setIsFollowed] = useState(false);
@@ -216,6 +217,14 @@ export default function Industry() {
 
   const currentNews = STAGE_NEWS[activeNode] || DEFAULT_NEWS;
   const currentEnterprises = STAGE_ENTERPRISES[activeNode] || DEFAULT_ENTERPRISES;
+  const enterpriseTabs = ["龙头", "核心", "成长潜力", "其他"];
+  const tabbedEnterprises = currentEnterprises.filter((_, index) => {
+    if (activeEnterpriseTab === "龙头") return index < 3;
+    if (activeEnterpriseTab === "核心") return index >= 3 && index < 7;
+    if (activeEnterpriseTab === "成长潜力") return index >= 7 && index < 12;
+    return index >= 12;
+  });
+  const displayEnterprises = tabbedEnterprises.length > 0 ? tabbedEnterprises : currentEnterprises.slice(0, 5);
 
   useEffect(() => {
     if (stageParam) setActiveNode(stageParam);
@@ -223,6 +232,7 @@ export default function Industry() {
 
   const handleNodeClick = (nodeName: string) => {
     setActiveNode(nodeName);
+    setActiveEnterpriseTab("龙头");
   };
 
   return (
@@ -554,76 +564,49 @@ export default function Industry() {
               </h3>
             </div>
 
-            {/* 筛选区域 */}
-            <div className="flex flex-wrap gap-3 mb-4">
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-slate-600 font-medium whitespace-nowrap">地区</span>
-                <div className="relative">
-                  <select
-                    value={selectedRegion}
-                    onChange={(e) => setSelectedRegion(e.target.value)}
-                    className="appearance-none bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 pr-10 text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
-                  >
-                    {filterOptions.region.map((option) => (
-                      <option key={option} value={option}>{option}</option>
-                    ))}
-                  </select>
-                  <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-slate-600 font-medium whitespace-nowrap">科技资质</span>
-                <div className="relative">
-                  <select
-                    value={selectedQualification}
-                    onChange={(e) => setSelectedQualification(e.target.value)}
-                    className="appearance-none bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 pr-10 text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
-                  >
-                    {filterOptions.qualification.map((option) => (
-                      <option key={option} value={option}>{option}</option>
-                    ))}
-                  </select>
-                  <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-slate-600 font-medium whitespace-nowrap">成立年限</span>
-                <div className="relative">
-                  <select
-                    value={selectedEstablishment}
-                    onChange={(e) => setSelectedEstablishment(e.target.value)}
-                    className="appearance-none bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 pr-10 text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
-                  >
-                    {filterOptions.establishment.map((option) => (
-                      <option key={option} value={option}>{option}</option>
-                    ))}
-                  </select>
-                  <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-slate-600 font-medium whitespace-nowrap">融资轮次</span>
-                <div className="relative">
-                  <select
-                    value={selectedFunding}
-                    onChange={(e) => setSelectedFunding(e.target.value)}
-                    className="appearance-none bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 pr-10 text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
-                  >
-                    {filterOptions.funding.map((option) => (
-                      <option key={option} value={option}>{option}</option>
-                    ))}
-                  </select>
-                  <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                </div>
-              </div>
+            <div className="flex flex-wrap gap-2 mb-4">
+              {enterpriseTabs.map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveEnterpriseTab(tab)}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                    activeEnterpriseTab === tab
+                      ? "bg-blue-600 text-white shadow-sm shadow-blue-200/60"
+                      : "bg-slate-50 text-slate-500 border border-slate-200 hover:border-blue-200 hover:text-blue-600 hover:bg-blue-50"
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
             </div>
 
-            <div className="flex-1 overflow-y-auto pr-2 scrollbar-hide max-h-[400px]">
+            {/* 筛选区域 */}
+            <div className="mb-4 flex flex-wrap gap-2">
+              {[
+                { label: "地区", value: selectedRegion, setter: setSelectedRegion, options: filterOptions.region },
+                { label: "资质", value: selectedQualification, setter: setSelectedQualification, options: filterOptions.qualification },
+                { label: "年限", value: selectedEstablishment, setter: setSelectedEstablishment, options: filterOptions.establishment },
+                { label: "轮次", value: selectedFunding, setter: setSelectedFunding, options: filterOptions.funding },
+              ].map((filter) => (
+                <label key={filter.label} className="group relative inline-flex items-center rounded-full border border-slate-200 bg-slate-50/80 px-3 py-1.5 text-xs text-slate-500 transition-all hover:border-blue-200 hover:bg-blue-50/60 hover:text-blue-600">
+                  <span className="mr-1.5 text-slate-400">{filter.label}</span>
+                  <select
+                    value={filter.value}
+                    onChange={(e) => filter.setter(e.target.value)}
+                    className="appearance-none bg-transparent pr-5 text-xs font-medium text-slate-700 outline-none cursor-pointer"
+                  >
+                    {filter.options.map((option) => (
+                      <option key={option} value={option}>{option}</option>
+                    ))}
+                  </select>
+                  <ChevronDown size={12} className="pointer-events-none absolute right-2 text-slate-400 transition-colors group-hover:text-blue-500" />
+                </label>
+              ))}
+            </div>
+
+            <div className="flex-1 overflow-y-auto pr-2 scrollbar-hide max-h-[400px] mt-4">
               <div className="space-y-2">
-                {currentEnterprises.slice(0, 15).map((item, index) => (
+                {displayEnterprises.slice(0, 15).map((item, index) => (
                   <Link
                     key={item.id}
                     to={`/enterprise/${encodeURIComponent(item.id)}?enterpriseName=${encodeURIComponent(item.name)}&industryName=${encodeURIComponent(industryName)}${cityName ? `&cityName=${encodeURIComponent(cityName)}` : ""}`}
@@ -633,7 +616,6 @@ export default function Industry() {
                       <span className="w-7 h-7 flex items-center justify-center rounded-lg text-sm font-bold shadow-sm bg-slate-100 text-slate-500 border border-slate-200">
                         {index + 1}
                       </span>
-                      <img src={item.logo} alt={item.name} className="w-8 h-8 rounded-full border border-slate-200 shadow-sm" />
                       <span className="font-semibold text-slate-700 group-hover:text-blue-600 transition-colors">
                         {item.name}
                       </span>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router";
-import { Bell, Check, Trash2, ArrowLeft, FileText, Search, Clock } from "lucide-react";
+import { Bell, Check, Trash2, FileText, Search, Clock } from "lucide-react";
 import Breadcrumb from "../components/Breadcrumb";
 
 interface Notification {
@@ -12,6 +12,10 @@ interface Notification {
   read: boolean;
   enterpriseId?: string;
   enterpriseName?: string;
+}
+
+function getEnterpriseName(item: Notification) {
+  return item.enterpriseName || item.title.replace(/^已设置提醒：/, "").replace(/\s*研报生成完成.*$/, "").replace(/\s*生成完成后将通知您.*$/, "");
 }
 
 export default function Notifications() {
@@ -59,9 +63,42 @@ export default function Notifications() {
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
+  const renderNotificationContent = (item: Notification, clickable: boolean) => (
+    <>
+      <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${
+        item.type === "generation_complete" ? "bg-emerald-100 text-emerald-600" :
+        item.type === "generation_notify" ? "bg-amber-100 text-amber-600" :
+        "bg-blue-100 text-blue-600"
+      }`}>
+        {item.type === "generation_complete" ? <FileText size={16} /> : <Bell size={16} />}
+      </div>
+
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 mb-1">
+          {!item.read && <span className="w-2 h-2 rounded-full bg-rose-500 flex-shrink-0"></span>}
+          <p className="text-sm font-semibold text-slate-800 truncate">{item.title}</p>
+        </div>
+        {item.content && (
+          <p className="text-xs text-slate-500 line-clamp-2">{item.content}</p>
+        )}
+        <div className="flex items-center gap-3 mt-2">
+          <span className="text-[11px] text-slate-400 flex items-center gap-1">
+            <Clock size={11} />
+            {item.time}
+          </span>
+          {clickable && (
+            <span className="text-[11px] text-blue-600 font-medium flex items-center gap-1">
+              <Search size={11} />
+              查看企业详情
+            </span>
+          )}
+        </div>
+      </div>
+    </>
+  );
+
   return (
     <div className="flex flex-col gap-6 pb-10 fade-in">
-      {/* 顶部 */}
       <section className="pt-4 pb-2 flex items-center justify-center relative">
         <div className="absolute left-0">
           <Breadcrumb items={from === "profile"
@@ -87,7 +124,6 @@ export default function Notifications() {
         </div>
       </section>
 
-      {/* 操作栏 */}
       <section className="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 flex items-center justify-between">
         <div className="text-sm text-slate-500">
           {unreadCount > 0 && (
@@ -114,7 +150,6 @@ export default function Notifications() {
         </div>
       </section>
 
-      {/* 通知列表 */}
       <section className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         {notifications.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-slate-400 gap-3">
@@ -123,60 +158,42 @@ export default function Notifications() {
           </div>
         ) : (
           <div className="divide-y divide-slate-100">
-            {notifications.map((item) => (
-              <div
-                key={item.id}
-                className={`p-4 flex items-start gap-3 transition-colors group ${
-                  item.read ? "bg-white" : "bg-blue-50/40"
-                } hover:bg-slate-50`}
-              >
-                {/* 图标 */}
-                <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                  item.type === "generation_complete" ? "bg-emerald-100 text-emerald-600" :
-                  item.type === "generation_notify" ? "bg-amber-100 text-amber-600" :
-                  "bg-blue-100 text-blue-600"
-                }`}>
-                  {item.type === "generation_complete" ? <FileText size={16} /> :
-                   item.type === "generation_notify" ? <Bell size={16} /> :
-                   <Bell size={16} />}
-                </div>
+            {notifications.map((item) => {
+              const enterpriseName = getEnterpriseName(item);
+              const clickable = Boolean(item.enterpriseId && enterpriseName);
+              const className = `p-4 flex items-start gap-3 transition-colors group ${item.read ? "bg-white" : "bg-blue-50/40"} hover:bg-slate-50 ${clickable ? "cursor-pointer" : ""}`;
 
-                {/* 内容 */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    {!item.read && <span className="w-2 h-2 rounded-full bg-rose-500 flex-shrink-0"></span>}
-                    <p className="text-sm font-semibold text-slate-800 truncate">{item.title}</p>
-                  </div>
-                  {item.content && (
-                    <p className="text-xs text-slate-500 line-clamp-2">{item.content}</p>
-                  )}
-                  <div className="flex items-center gap-3 mt-2">
-                    <span className="text-[11px] text-slate-400 flex items-center gap-1">
-                      <Clock size={11} />
-                      {item.time}
-                    </span>
-                    {item.enterpriseId && item.enterpriseName && (
-                      <Link
-                        to={`/enterprise/${encodeURIComponent(item.enterpriseId)}?enterpriseName=${encodeURIComponent(item.enterpriseName)}`}
-                        onClick={() => markOneRead(item.id)}
-                        className="text-[11px] text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1"
-                      >
-                        <Search size={11} />
-                        查看详情
-                      </Link>
-                    )}
-                  </div>
-                </div>
-
-                {/* 操作 */}
-                <button
-                  onClick={() => deleteOne(item.id)}
-                  className="p-1.5 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+              return clickable ? (
+                <Link
+                  key={item.id}
+                  to={`/enterprise/${encodeURIComponent(item.enterpriseId as string)}?enterpriseName=${encodeURIComponent(enterpriseName)}`}
+                  onClick={() => markOneRead(item.id)}
+                  className={className}
                 >
-                  <Trash2 size={14} />
-                </button>
-              </div>
-            ))}
+                  {renderNotificationContent(item, true)}
+                  <button
+                    onClick={(event) => {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      deleteOne(item.id);
+                    }}
+                    className="p-1.5 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </Link>
+              ) : (
+                <div key={item.id} className={className}>
+                  {renderNotificationContent(item, false)}
+                  <button
+                    onClick={() => deleteOne(item.id)}
+                    className="p-1.5 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              );
+            })}
           </div>
         )}
       </section>

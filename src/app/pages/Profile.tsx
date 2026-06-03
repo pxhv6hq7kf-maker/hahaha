@@ -20,6 +20,7 @@ const FOLLOWED_INDUSTRIES = [
   { id: 1, name: "新能源", heat: "98.5w" },
   { id: 2, name: "人工智能", heat: "95.2w" },
   { id: 3, name: "半导体", heat: "85.1w" },
+  { id: 4, name: "生物医药", heat: "82.6w" },
 ];
 
 interface GenerationStatus {
@@ -158,9 +159,6 @@ export default function Profile() {
               <span className="w-1 h-4 bg-blue-600 rounded-full"></span>
               收藏企业
             </h2>
-            <Link to="/follow/enterprise" className="text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1 font-medium">
-              查看信号列表 <ChevronRight size={14} />
-            </Link>
           </div>
           <div className="space-y-2">
             {FAVORITE_ENTERPRISES.map((item, index) => (
@@ -175,7 +173,6 @@ export default function Profile() {
                   }`}>
                     {index + 1}
                   </span>
-                  <img src={item.logo} alt={item.name} className="w-8 h-8 rounded-full border border-slate-200 shadow-sm" />
                   <span className="font-semibold text-slate-700 group-hover:text-blue-600 transition-colors">{item.name}</span>
                 </div>
                 <span className="text-xs text-slate-400 bg-slate-50 px-2 py-1 rounded-md">{item.industry}</span>
@@ -289,10 +286,6 @@ export default function Profile() {
                     {item.name.charAt(0)}
                   </div>
                   <span className="font-semibold text-slate-700 group-hover:text-blue-600 transition-colors">{item.name}</span>
-                </div>
-                <div className="flex items-center gap-1.5 text-xs text-slate-400">
-                  <Flame size={12} />
-                  {item.heat}
                 </div>
               </Link>
             ))}
