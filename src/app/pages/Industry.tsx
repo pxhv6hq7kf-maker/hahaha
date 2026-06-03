@@ -394,27 +394,26 @@ export default function Industry() {
 
           {/* 推荐投资区域 */}
           <div>
-            <div className="text-xs font-semibold text-slate-600 mb-2">推荐投资区域：</div>
-            <div className="flex flex-wrap gap-2">
-              {[
-                { name: "上海", tag: "集成电路核心集聚区" },
-                { name: "深圳", tag: "AI芯片与应用" },
-                { name: "北京", tag: "大模型与算法" },
-                { name: "合肥", tag: "算力与存储芯片" },
-                { name: "无锡", tag: "芯片制造产业链" },
-              ].map((r) => (
-                <Link
-                  key={r.name}
-                  to={`/city/${encodeURIComponent(r.name)}?cityName=${encodeURIComponent(r.name)}`}
-                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white border border-slate-200 text-xs text-slate-700 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 transition-colors"
-                >
-                  <span className="font-semibold">{r.name}</span>
-                  <span className="text-slate-400">·</span>
-                  <span className="text-slate-500">{r.tag}</span>
-                </Link>
-              ))}
+              <div className="text-xs font-semibold text-slate-600 mb-2">推荐投资区域：</div>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { name: "上海", tag: "集成电路核心集聚区" },
+                  { name: "深圳", tag: "AI芯片与应用" },
+                  { name: "北京", tag: "大模型与算法" },
+                  { name: "合肥", tag: "算力与存储芯片" },
+                  { name: "无锡", tag: "芯片制造产业链" },
+                ].map((r) => (
+                  <div
+                    key={r.name}
+                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white border border-slate-200 text-xs text-slate-700"
+                  >
+                    <span className="font-semibold">{r.name}</span>
+                    <span className="text-slate-400">·</span>
+                    <span className="text-slate-500">{r.tag}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
         </div>
 
         {/* 3. 全球资本流向 / 全球热点技术 */}
