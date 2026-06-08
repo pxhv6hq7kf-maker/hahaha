@@ -37,7 +37,7 @@ const ENTERPRISE_OPTIONS = [
 
 export default function SearchBar({
   size = "large",
-  placeholder = "搜索行业或企业名称",
+  placeholder = "搜索产业或企业名称",
   autoFocus = false,
 }: SearchBarProps) {
   const [query, setQuery] = useState("");

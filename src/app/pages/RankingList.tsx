@@ -94,16 +94,21 @@ export default function RankingList() {
 
   useEffect(() => {
     try {
-      setFollowedIndustries(JSON.parse(localStorage.getItem("followed_industries") || "[]"));
+      const saved = JSON.parse(localStorage.getItem("followed_industries") || "[]");
+      // 如果没有关注行业，默认使用具身智能、量子科技
+      setFollowedIndustries(saved.length > 0 ? saved : ["具身智能", "量子科技"]);
     } catch {
-      setFollowedIndustries([]);
+      setFollowedIndustries(["具身智能", "量子科技"]);
     }
   }, []);
 
   useEffect(() => {
-    setActiveIndustry("全部");
+    // 使用第一个关注行业作为默认选中
+    if (followedIndustries.length > 0) {
+      setActiveIndustry(followedIndustries[0]);
+    }
     setCurrentPage(1);
-  }, [rankType]);
+  }, [rankType, followedIndustries]);
 
   if (!isRankingType(rankType)) {
     return <Navigate to="/home" replace />;
@@ -112,10 +117,10 @@ export default function RankingList() {
   const meta = RANKING_META[rankType];
   const Icon = meta.icon;
   const data = RANKING_DATA[rankType];
-  const atlasTabs = ["全部", ...followedIndustries];
+  const atlasTabs = followedIndustries;
 
   const filteredData = useMemo(() => {
-    if (rankType !== "atlas" || activeIndustry === "全部") return data;
+    if (rankType !== "atlas") return data;
     return ATLAS_ENTERPRISES.filter((item) => matchIndustryTrack(item.track, activeIndustry));
   }, [activeIndustry, data, rankType]);
 
@@ -166,9 +171,6 @@ export default function RankingList() {
                 {industry}
               </button>
             ))}
-            {followedIndustries.length === 0 && (
-              <span className="text-xs text-slate-400">暂无关注行业，可在行业详情页点击「关注行业」后筛选。</span>
-            )}
           </div>
         </section>
       )}

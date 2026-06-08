@@ -70,7 +70,7 @@ type Lang = "zh" | "en";
 const I18N = {
   zh: {
     tagline: "研究+认知，投资决策的底层支撑",
-    industryNav: "行业导航",
+    industryNav: "产业导航",
     industryNavEn: "Industry Map",
     next50Title: "成长潜力企业",
     next50Subtitle: "High-Growth Tech Leaders · Top 50",

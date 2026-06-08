@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import { useParams, useSearchParams, Link } from "react-router";
-import { Star, ChevronDown, ChevronUp, FileText, Briefcase, Building2, ShieldAlert, LineChart, Globe, Search, ArrowLeft, TrendingUp, BookmarkPlus } from "lucide-react";
+import { Star, ChevronDown, ChevronUp, FileText, Briefcase, Building2, ShieldAlert, LineChart, Globe, Search, ArrowLeft, TrendingUp, BookmarkPlus, RefreshCw } from "lucide-react";
 import SearchBar from "../components/SearchBar";
 import GenerationProgress from "../components/GenerationProgress";
 import Breadcrumb from "../components/Breadcrumb";
@@ -145,8 +145,6 @@ export default function Enterprise() {
   const rankTitle = searchParams.get("rankTitle");
 
   const [collapsedSections, setCollapsedSections] = useState<string[]>([]);
-  const [activeFilter, setActiveFilter] = useState("全部");
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   // Generation progress flow: check localStorage for cached result
   const hasCache = !!localStorage.getItem(`enterprise_result_${enterpriseId}`);
@@ -185,9 +183,7 @@ export default function Enterprise() {
     );
   };
 
-  const filteredDynamics = activeFilter === "全部"
-    ? DYNAMICS
-    : DYNAMICS.filter(d => d.type === activeFilter);
+  const filteredDynamics = DYNAMICS;
 
   const breadcrumbItems = rankType && rankTitle
     ? [
@@ -281,16 +277,27 @@ export default function Enterprise() {
                 const isCollapsed = collapsedSections.includes(section.id);
                 return (
                   <div key={section.id} className="mb-2 bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden transition-all duration-300">
-                    <button 
-                      onClick={() => toggleSection(section.id)}
-                      className="w-full flex items-center justify-between p-4 bg-white hover:bg-slate-50 transition-colors"
-                    >
-                      <h3 className="font-bold text-slate-800 flex items-center gap-2 text-[15px]">
-                        <span className="text-blue-600">{section.icon}</span>
-                        {section.title}
-                      </h3>
-                      {isCollapsed ? <ChevronDown size={18} className="text-slate-400" /> : <ChevronUp size={18} className="text-slate-400" />}
-                    </button>
+                    <div className="p-4">
+                      {section.id === "investment_conclusion" && (
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="text-xs text-slate-500">报告生成时间：2026-05-20 14:30</span>
+                          <button className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 font-medium bg-blue-50 hover:bg-blue-100 px-2.5 py-1 rounded-md transition-colors">
+                            <RefreshCw size={12} />
+                            重新生成报告（预计20分钟）
+                          </button>
+                        </div>
+                      )}
+                      <button 
+                        onClick={() => toggleSection(section.id)}
+                        className="w-full flex items-center justify-between bg-white hover:bg-slate-50 transition-colors"
+                      >
+                        <h3 className="font-bold text-slate-800 flex items-center gap-2 text-[15px]">
+                          <span className="text-blue-600">{section.icon}</span>
+                          {section.title}
+                        </h3>
+                        {isCollapsed ? <ChevronDown size={18} className="text-slate-400" /> : <ChevronUp size={18} className="text-slate-400" />}
+                      </button>
+                    </div>
                     <AnimatePresence>
                       {!isCollapsed && (
                         <motion.div 
@@ -360,14 +367,16 @@ export default function Enterprise() {
               })}
             </div>
 
-            <div className="p-6 bg-white border-t border-slate-100 flex justify-end">
-              <Link
-                to={`/report/R-${enterpriseId}?enterpriseId=${enterpriseId}&enterpriseName=${encodeURIComponent(enterpriseName)}${searchParams.get("industryName") ? `&industryName=${encodeURIComponent(searchParams.get("industryName") as string)}` : ""}`}
-                className="flex items-center gap-2 bg-slate-900 text-white px-6 py-2.5 rounded-lg hover:bg-slate-800 transition-colors shadow-md font-medium text-sm"
-              >
-                <FileText size={16} />
-                查看完整版研报
-              </Link>
+            <div className="p-6 bg-white border-t border-slate-100">
+              <div className="flex justify-end">
+                <Link
+                  to={`/report/R-${enterpriseId}?enterpriseId=${enterpriseId}&enterpriseName=${encodeURIComponent(enterpriseName)}${searchParams.get("industryName") ? `&industryName=${encodeURIComponent(searchParams.get("industryName") as string)}` : ""}`}
+                  className="flex items-center gap-2 bg-slate-900 text-white px-6 py-2.5 rounded-lg hover:bg-slate-800 transition-colors shadow-md font-medium text-sm"
+                >
+                  <FileText size={16} />
+                  查看完整版研报
+                </Link>
+              </div>
             </div>
           </div>
         </section>
@@ -376,12 +385,11 @@ export default function Enterprise() {
         <section className="flex-[1] flex flex-col gap-4">
           {/* Recommended Enterprises */}
           <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center mb-4">
               <h2 className="text-base font-bold text-slate-800 flex items-center gap-2">
                 <span className="w-1 h-4 bg-indigo-600 rounded-full"></span>
                 其他成长性潜力企业
               </h2>
-              <Link to="/home" className="text-xs text-blue-600 hover:text-blue-700 font-medium">查看更多</Link>
             </div>
             <div className="space-y-2.5">
               {[
@@ -413,47 +421,11 @@ export default function Enterprise() {
 
           {/* Latest Enterprise News */}
           <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-            <div className="flex items-center justify-between mb-8 pb-4 border-b border-slate-100 relative">
+            <div className="flex items-center mb-8 pb-4 border-b border-slate-100">
               <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
                 <span className="w-1 h-5 bg-blue-600 rounded-full"></span>
                 最新企业动态
               </h2>
-
-              <div className="relative">
-                <button
-                  onClick={() => setIsFilterOpen(!isFilterOpen)}
-                  className="flex items-center gap-2 text-sm text-slate-600 bg-slate-50 hover:bg-slate-100 px-4 py-2 rounded-lg border border-slate-200 transition-colors font-medium"
-                >
-                  {activeFilter}
-                  <ChevronDown size={14} className={`transition-transform duration-200 ${isFilterOpen ? "rotate-180" : ""}`} />
-                </button>
-
-                <AnimatePresence>
-                  {isFilterOpen && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 10 }}
-                      className="absolute right-0 top-full mt-2 w-36 bg-white border border-slate-200 shadow-xl rounded-xl overflow-hidden z-20"
-                    >
-                      {["全部", "公告", "投融资", "舆情", "人事"].map((filter) => (
-                        <button
-                          key={filter}
-                          onClick={() => {
-                            setActiveFilter(filter);
-                            setIsFilterOpen(false);
-                          }}
-                          className={`w-full text-left px-4 py-2.5 text-sm hover:bg-blue-50 transition-colors ${
-                            activeFilter === filter ? "bg-blue-50 text-blue-600 font-bold" : "text-slate-600"
-                          }`}
-                        >
-                          {filter}
-                        </button>
-                      ))}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
             </div>
 
             {/* Timeline */}

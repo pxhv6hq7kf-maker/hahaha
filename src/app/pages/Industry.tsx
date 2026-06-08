@@ -328,11 +328,11 @@ export default function Industry() {
         </div>
       </section>
 
-      {/* 行业总览 */}
+      {/* 产业总览 */}
       <section className={`bg-white rounded-2xl shadow-sm border border-slate-200 p-6 ${isGraphExpanded ? "opacity-0 pointer-events-none hidden" : "opacity-100"}`}>
         <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2 mb-6 pb-3 border-b border-slate-100">
           <span className="w-1 h-5 bg-blue-600 rounded-full"></span>
-          {industryName} 行业总览
+          {industryName} 产业总览
         </h2>
 
         {/* 1. 产业发展阶段 */}
@@ -526,11 +526,11 @@ export default function Industry() {
       <div className={`flex gap-6 ${isGraphExpanded ? "opacity-0 pointer-events-none hidden" : "opacity-100 transition-opacity delay-100"}`}>
         {/* 左侧主内容区 */}
         <div className="flex-1 flex flex-col gap-6">
-          {/* 3.1 最新行业动态 */}
+          {/* 3.1 最新产业动态 */}
           <section className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 flex flex-col h-[500px]">
             <h3 className="text-base font-bold text-slate-800 mb-5 flex items-center gap-2 pb-3 border-b border-slate-100">
               <span className="w-1 h-4 bg-blue-600 rounded-full"></span>
-              {activeNode !== industryName && <span className="text-blue-600">[{activeNode}]</span>} 最新行业动态
+              {activeNode !== industryName && <span className="text-blue-600">[{activeNode}]</span>} 最新产业动态
             </h3>
             <div className="flex-1 overflow-y-auto pr-2 space-y-4 scrollbar-hide">
               {currentNews.slice(0, 5).map((news) => (
@@ -667,10 +667,6 @@ export default function Industry() {
                 </div>
                 <div className="flex-1">
                   <div className="font-semibold text-slate-800 group-hover:text-blue-600 transition-colors">{item.name}</div>
-                  <div className="flex items-center gap-1 text-xs text-slate-500">
-                    <span>相关度</span>
-                    <span className="text-blue-600 font-medium">{item.relevance}%</span>
-                  </div>
                 </div>
                 <ChevronDown size={14} className="text-slate-400 group-hover:text-blue-500 group-hover:translate-x-1 transition-all" />
               </Link>
