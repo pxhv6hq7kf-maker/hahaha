@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { ChevronRight, Flame, ChevronLeft, ChevronRight as IconRight, Sparkles, TrendingUp, Compass, ArrowUpRight, BarChart3, Cpu } from "lucide-react";
 import SearchBar from "../components/SearchBar";
 import { motion } from "motion/react";
 import { NEXT50_ENTERPRISES, ATLAS_ENTERPRISES, LISTED_ENTERPRISES } from "../data/rankings";
+import { useConfirmEnterpriseReport } from "../components/ConfirmDialog";
 
 const INDUSTRIES = ["新能源", "人工智能", "生物医药", "半导体", "低空经济", "量子计算", "消费电子", "云计算", "先进制造", "新材料", "物联网"];
 
@@ -97,6 +98,15 @@ const I18N = {
 };
 
 export default function Home() {
+  const navigate = useNavigate();
+  const requestEnterpriseReport = useConfirmEnterpriseReport();
+  const handleEnterpriseClick = (name: string, path: string) => (event: React.MouseEvent) => {
+    event.preventDefault();
+    requestEnterpriseReport({
+      enterpriseName: name,
+      onConfirm: () => navigate(path),
+    });
+  };
   const [showIntro, setShowIntro] = useState(() => sessionStorage.getItem("home_intro_seen") !== "true");
   const [lang, setLang] = useState<Lang>(() => {
     return (localStorage.getItem("app_lang") as Lang) || "zh";
@@ -422,6 +432,7 @@ export default function Home() {
                 <Link
                   key={item.id}
                   to={`/enterprise/${encodeURIComponent(item.id)}?enterpriseName=${encodeURIComponent(item.name)}`}
+                  onClick={handleEnterpriseClick(item.name, `/enterprise/${encodeURIComponent(item.id)}?enterpriseName=${encodeURIComponent(item.name)}`)}
                   className="flex items-center justify-between p-2.5 rounded-xl group/row transition-all duration-300 hover:bg-gradient-to-r hover:from-blue-50/80 hover:to-indigo-50/50 border border-transparent hover:border-blue-100"
                 >
                   <div className="flex items-center gap-3 min-w-0">
@@ -478,6 +489,7 @@ export default function Home() {
                 <Link
                   key={item.id}
                   to={`/enterprise/${encodeURIComponent(item.id)}?enterpriseName=${encodeURIComponent(item.name)}`}
+                  onClick={handleEnterpriseClick(item.name, `/enterprise/${encodeURIComponent(item.id)}?enterpriseName=${encodeURIComponent(item.name)}`)}
                   className="flex items-center justify-between p-2.5 rounded-xl group/row transition-all duration-300 hover:bg-gradient-to-r hover:from-emerald-50/80 hover:to-teal-50/50 border border-transparent hover:border-emerald-100"
                 >
                   <div className="flex items-center gap-2.5 min-w-0 flex-1">
@@ -541,6 +553,7 @@ export default function Home() {
                 <Link
                   key={item.id}
                   to={`/enterprise/${encodeURIComponent(item.id)}?enterpriseName=${encodeURIComponent(item.name)}`}
+                  onClick={handleEnterpriseClick(item.name, `/enterprise/${encodeURIComponent(item.id)}?enterpriseName=${encodeURIComponent(item.name)}`)}
                   className="flex items-center justify-between p-2.5 rounded-xl group/row transition-all duration-300 hover:bg-gradient-to-r hover:from-violet-50/80 hover:to-indigo-50/50 border border-transparent hover:border-violet-100"
                 >
                   <div className="flex items-center gap-2.5 min-w-0">

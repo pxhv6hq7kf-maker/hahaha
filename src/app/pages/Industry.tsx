@@ -1,8 +1,9 @@
 import { useState, useMemo, useEffect } from "react";
-import { useParams, Link, useSearchParams } from "react-router";
+import { useParams, Link, useNavigate, useSearchParams } from "react-router";
 import { ArrowLeft, Maximize2, Minimize2, ChevronDown, Clock, Activity, BarChart3, TrendingUp, MapPin, Building2, DollarSign, Users, ShieldAlert, Cpu, Landmark, Heart, HeartOff, Sparkles } from "lucide-react";
 import SearchBar from "../components/SearchBar";
 import Breadcrumb from "../components/Breadcrumb";
+import { useConfirmEnterpriseReport } from "../components/ConfirmDialog";
 
 // 产业链阶段数据
 const CHAIN_STAGES: Record<string, { phase: string; stages: string[] }[]> = {
@@ -163,6 +164,8 @@ const MOCK_NODES = (centerName: string, stages: { phase: string; stages: string[
 export default function Industry() {
   const { industryId } = useParams();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const requestEnterpriseReport = useConfirmEnterpriseReport();
   const industryName = searchParams.get("industryName") || decodeURIComponent(industryId || "未命名行业");
   const cityName = searchParams.get("cityName");
   const stageParam = searchParams.get("stage");
@@ -609,6 +612,11 @@ export default function Industry() {
                   <Link
                     key={item.id}
                     to={`/enterprise/${encodeURIComponent(item.id)}?enterpriseName=${encodeURIComponent(item.name)}&industryName=${encodeURIComponent(industryName)}${cityName ? `&cityName=${encodeURIComponent(cityName)}` : ""}`}
+                    onClick={(event) => {
+                      event.preventDefault();
+                      const target = `/enterprise/${encodeURIComponent(item.id)}?enterpriseName=${encodeURIComponent(item.name)}&industryName=${encodeURIComponent(industryName)}${cityName ? `&cityName=${encodeURIComponent(cityName)}` : ""}`;
+                      requestEnterpriseReport({ enterpriseName: item.name, onConfirm: () => navigate(target) });
+                    }}
                     className="flex items-center justify-between p-3.5 hover:bg-slate-50 rounded-xl group transition-all border border-transparent hover:border-slate-100"
                   >
                     <div className="flex items-center gap-4">

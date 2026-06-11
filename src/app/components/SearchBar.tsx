@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useMemo } from "react";
 import { Search, Clock, TrendingUp, SearchCode, Building2 } from "lucide-react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
+import { useConfirmEnterpriseReport } from "./ConfirmDialog";
 
 interface SearchBarProps {
   size?: "large" | "small";
@@ -44,6 +45,7 @@ export default function SearchBar({
   const [isFocused, setIsFocused] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const requestEnterpriseReport = useConfirmEnterpriseReport();
 
   const isLarge = size === "large";
   const heightClass = isLarge ? "h-[58px]" : "h-[40px]";
@@ -75,12 +77,16 @@ export default function SearchBar({
   }, []);
 
   const handleSearch = (item: string, type: "industry" | "enterprise") => {
-    setIsFocused(false);
-    if (type === "industry") {
-      navigate(`/industry/${encodeURIComponent(item)}?industryName=${encodeURIComponent(item)}`);
-    } else {
-      navigate(`/enterprise/${encodeURIComponent(item)}?enterpriseName=${encodeURIComponent(item)}`);
+    if (type === "enterprise") {
+      setIsFocused(false);
+      requestEnterpriseReport({
+        enterpriseName: item,
+        onConfirm: () => navigate(`/enterprise/${encodeURIComponent(item)}?enterpriseName=${encodeURIComponent(item)}`),
+      });
+      return;
     }
+    setIsFocused(false);
+    navigate(`/industry/${encodeURIComponent(item)}?industryName=${encodeURIComponent(item)}`);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {

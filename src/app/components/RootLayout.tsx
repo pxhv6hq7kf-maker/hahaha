@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Outlet, Link, useLocation, useNavigate } from "react-router";
 import { User, Flame, Bell } from "lucide-react";
 import AIChat from "./AIChat";
+import { ConfirmProvider } from "./ConfirmDialog";
 
 export default function RootLayout() {
   const location = useLocation();
@@ -41,6 +42,7 @@ export default function RootLayout() {
   };
 
   return (
+    <ConfirmProvider>
     <div className="min-h-screen bg-slate-50 relative flex flex-col font-sans text-slate-800">
       {/* 顶部导航栏 */}
       <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-100">
@@ -119,5 +121,6 @@ export default function RootLayout() {
 
       {/* <AIChat /> */}
     </div>
+    </ConfirmProvider>
   );
 }
