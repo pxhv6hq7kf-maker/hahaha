@@ -236,17 +236,17 @@ export default function Profile() {
                     <span className="font-semibold text-slate-700 block">{gen.enterpriseName} 深度研报</span>
                     {gen.status === "completed" && (
                       <span className="text-xs text-slate-400 mt-0.5 block">
-                        报告生成时间：{formatCompletedTime(gen.startedAt)} · 完成时间：{formatCompletedTime(gen.completedAt)}
+                        开始生成时间：{formatCompletedTime(gen.startedAt)} · 完成时间：{formatCompletedTime(gen.completedAt)}
                       </span>
                     )}
                     {gen.status === "generating" && (
                       <span className="text-xs text-slate-400 mt-0.5 block">
-                        报告生成时间：{formatCompletedTime(gen.startedAt)} · 生成中
+                        开始生成时间：{formatCompletedTime(gen.startedAt)} · 生成中
                       </span>
                     )}
                     {gen.status === "failed" && (
                       <span className="text-xs text-rose-500 mt-0.5 block">
-                        报告生成时间：{formatCompletedTime(gen.startedAt)} · 失败时间：{formatCompletedTime(gen.completedAt)} · {gen.errorMessage}
+                        开始生成时间：{formatCompletedTime(gen.startedAt)} · 失败时间：{formatCompletedTime(gen.completedAt)} · {gen.errorMessage}
                       </span>
                     )}
                   </div>
