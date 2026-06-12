@@ -9,6 +9,8 @@ import Profile from "./pages/Profile";
 import Notifications from "./pages/Notifications";
 import City from "./pages/City";
 import RankingList from "./pages/RankingList";
+import QueuePage from "./pages/QueuePage";
+import GenerationFailedPage from "./pages/GenerationFailedPage";
 
 export const router = createBrowserRouter([
   {
@@ -25,6 +27,9 @@ export const router = createBrowserRouter([
       { path: "profile", Component: Profile },
       { path: "notifications", Component: Notifications },
       { path: "city/:cityId", Component: City },
+      { path: "queue", Component: QueuePage },
+      { path: "generation-failed/:enterpriseId", Component: GenerationFailedPage },
+      { path: "*", element: <Navigate to="/home" replace /> },
     ],
   },
 ], { basename: "/hahaha" });

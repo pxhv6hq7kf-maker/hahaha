@@ -428,13 +428,20 @@ export default function Home() {
             </div>
 
             <div className="space-y-1">
-              {NEXT50_ENTERPRISES.map((item, index) => (
-                <Link
-                  key={item.id}
-                  to={`/enterprise/${encodeURIComponent(item.id)}?enterpriseName=${encodeURIComponent(item.name)}`}
-                  onClick={handleEnterpriseClick(item.name, `/enterprise/${encodeURIComponent(item.id)}?enterpriseName=${encodeURIComponent(item.name)}`)}
-                  className="flex items-center justify-between p-2.5 rounded-xl group/row transition-all duration-300 hover:bg-gradient-to-r hover:from-blue-50/80 hover:to-indigo-50/50 border border-transparent hover:border-blue-100"
-                >
+              {NEXT50_ENTERPRISES.map((item, index) => {
+                let href = `/enterprise/${encodeURIComponent(item.id)}?enterpriseName=${encodeURIComponent(item.name)}`;
+                if (index === 1) {
+                  href = `/queue?enterpriseName=${encodeURIComponent(item.name)}`;
+                } else if (index === 2) {
+                  href = `/generation-failed/${encodeURIComponent(item.id)}?enterpriseName=${encodeURIComponent(item.name)}`;
+                }
+                return (
+                  <Link
+                    key={item.id}
+                    to={href}
+                    onClick={handleEnterpriseClick(item.name, href)}
+                    className="flex items-center justify-between p-2.5 rounded-xl group/row transition-all duration-300 hover:bg-gradient-to-r hover:from-blue-50/80 hover:to-indigo-50/50 border border-transparent hover:border-blue-100"
+                  >
                   <div className="flex items-center gap-3 min-w-0">
                     <span className={`w-7 h-7 flex items-center justify-center rounded-lg text-xs font-bold transition-all ${
                       index < 3
@@ -454,7 +461,8 @@ export default function Home() {
                     <p className="text-[11px] text-slate-400 mt-0.5">{item.valuation}</p>
                   </div>
                 </Link>
-              ))}
+                );
+              })}
             </div>
           </div>
         </section>

@@ -26,8 +26,11 @@ const FOLLOWED_INDUSTRIES = [
 interface GenerationStatus {
   enterpriseId: string;
   enterpriseName: string;
-  status: "generating" | "completed";
+  status: "generating" | "completed" | "failed";
+  startedAt?: number;
   completedAt?: number;
+  progress?: number;
+  errorMessage?: string;
 }
 
 const TABS = [
@@ -70,6 +73,7 @@ export default function Profile() {
               enterpriseId: String(enterprise.id),
               enterpriseName: enterprise.name,
               status: "completed",
+              startedAt: data.completedAt ? data.completedAt - 1000 * 60 * 8 : undefined,
               completedAt: data.completedAt,
             });
           } catch {
@@ -84,14 +88,40 @@ export default function Profile() {
         if (!statuses.find(s => s.enterpriseId === id)) {
           const enterprise = FAVORITE_ENTERPRISES.find(e => String(e.id) === id);
           if (enterprise) {
+            // Generate random progress between 0-90% for generating status
             statuses.push({
               enterpriseId: id,
               enterpriseName: enterprise.name,
               status: "generating",
+              startedAt: Date.now() - 1000 * 60 * 4,
+              progress: Math.floor(Math.random() * 90) + 10,
             });
           }
         }
       });
+
+      // Add mock generating status for demonstration
+      if (!statuses.find(s => s.status === "generating")) {
+        statuses.push({
+          enterpriseId: "generating_demo",
+          enterpriseName: "比亚迪",
+          status: "generating",
+          startedAt: Date.now() - 1000 * 60 * 5,
+          progress: 65,
+        });
+      }
+
+      // Add mock failed status for demonstration
+      if (!statuses.find(s => s.status === "failed")) {
+        statuses.push({
+          enterpriseId: "failed_demo",
+          enterpriseName: "寒武纪",
+          status: "failed",
+          startedAt: Date.now() - 1000 * 60 * 12,
+          completedAt: Date.now() - 1000 * 60 * 6,
+          errorMessage: "生成失败，请重试",
+        });
+      }
 
       setGenerationStatuses(statuses);
     };
@@ -196,66 +226,56 @@ export default function Profile() {
             {generationStatuses.length > 0 && generationStatuses.map((gen) => (
               <div
                 key={gen.enterpriseId}
-                className={`flex items-center justify-between p-3.5 rounded-xl border transition-all ${
-                  gen.status === "generating"
-                    ? "border-amber-200 bg-amber-50/50"
-                    : "border-transparent hover:border-slate-100 hover:bg-slate-50"
-                }`}
+                className="flex items-center justify-between p-3.5 rounded-xl border border-transparent hover:border-slate-100 hover:bg-slate-50 transition-all"
               >
                 <div className="flex items-center gap-4">
-                  <span className="w-7 h-7 flex items-center justify-center rounded-lg text-sm font-bold shadow-sm bg-gradient-to-br from-indigo-100 to-violet-100 text-indigo-600 border border-indigo-200">
+                  <span className="w-7 h-7 flex items-center justify-center rounded-lg text-sm font-bold shadow-sm border flex-shrink-0 bg-gradient-to-br from-indigo-100 to-violet-100 text-indigo-600 border-indigo-200">
                     <FileText size={14} />
                   </span>
-                  <div>
+                  <div className="flex-1 min-w-0">
                     <span className="font-semibold text-slate-700 block">{gen.enterpriseName} 深度研报</span>
-                    <span className="text-xs text-slate-400 mt-0.5 block">
-                      {gen.status === "generating" ? "AI 正在生成中..." : formatCompletedTime(gen.completedAt)}
-                    </span>
+                    {gen.status === "completed" && (
+                      <span className="text-xs text-slate-400 mt-0.5 block">
+                        报告生成时间：{formatCompletedTime(gen.startedAt)} · 完成时间：{formatCompletedTime(gen.completedAt)}
+                      </span>
+                    )}
+                    {gen.status === "generating" && (
+                      <span className="text-xs text-slate-400 mt-0.5 block">
+                        报告生成时间：{formatCompletedTime(gen.startedAt)} · 生成中
+                      </span>
+                    )}
+                    {gen.status === "failed" && (
+                      <span className="text-xs text-rose-500 mt-0.5 block">
+                        报告生成时间：{formatCompletedTime(gen.startedAt)} · 失败时间：{formatCompletedTime(gen.completedAt)} · {gen.errorMessage}
+                      </span>
+                    )}
                   </div>
                 </div>
-                {gen.status === "generating" ? (
-                  <span className="text-xs text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full font-medium flex items-center gap-1.5 border border-amber-200">
-                    <Loader2 size={12} className="animate-spin" /> 生成中
-                  </span>
-                ) : (
-                  <Link
-                    to={`/enterprise/${encodeURIComponent(gen.enterpriseId)}?enterpriseName=${encodeURIComponent(gen.enterpriseName)}`}
-                    className="text-xs text-blue-600 hover:text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full font-medium flex items-center gap-1.5 border border-blue-200"
-                  >
-                    <CheckCircle2 size={12} /> 查看研报
-                  </Link>
-                )}
+                <div className="flex-shrink-0 flex items-center gap-2">
+                  {gen.status === "generating" ? (
+                    <span className="text-xs text-amber-600 font-medium">
+                      生成中
+                    </span>
+                  ) : gen.status === "failed" ? (
+                    <button
+                      onClick={() => console.log(`Retry generation for ${gen.enterpriseId}`)}
+                      className="text-xs text-rose-600 hover:text-rose-700 font-medium flex items-center gap-1 transition-colors"
+                    >
+                      <Loader2 size={12} /> 重试
+                    </button>
+                  ) : (
+                    <Link
+                      to={`/report/${encodeURIComponent(gen.enterpriseId)}?enterpriseName=${encodeURIComponent(gen.enterpriseName)}`}
+                      className="text-xs text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1 transition-colors"
+                    >
+                      <CheckCircle2 size={12} /> 查看研报
+                    </Link>
+                  )}
+                </div>
               </div>
             ))}
 
-            {/* Divider between generation items and downloaded reports */}
-            {generationStatuses.length > 0 && DOWNLOADED_REPORTS.length > 0 && (
-              <div className="border-t border-slate-100 my-3"></div>
-            )}
-
-            {/* Existing downloaded reports */}
-            {DOWNLOADED_REPORTS.map((item, index) => (
-              <Link
-                key={item.id}
-                to={`/report/${item.reportId}?enterpriseId=${item.enterpriseId}&enterpriseName=${encodeURIComponent(item.enterprise)}`}
-                className="flex items-center justify-between p-3.5 hover:bg-slate-50 rounded-xl group transition-all border border-transparent hover:border-slate-100"
-              >
-                <div className="flex items-center gap-4">
-                  <span className={`w-7 h-7 flex items-center justify-center rounded-lg text-sm font-bold shadow-sm ${
-                    index < 3 ? "bg-gradient-to-br from-blue-100 to-indigo-100 text-blue-600 border border-blue-200" : "bg-slate-100 text-slate-500 border border-slate-200"
-                  }`}>
-                    {index + 1}
-                  </span>
-                  <div>
-                    <span className="font-semibold text-slate-700 group-hover:text-blue-600 transition-colors block">{item.title}</span>
-                    <span className="text-xs text-slate-400 mt-0.5 block">{item.enterprise} · {item.date}</span>
-                  </div>
-                </div>
-                <FileText size={16} className="text-slate-300 group-hover:text-blue-500 transition-colors" />
-              </Link>
-            ))}
-
-            {generationStatuses.length === 0 && DOWNLOADED_REPORTS.length === 0 && (
+            {generationStatuses.length === 0 && (
               <div className="flex flex-col items-center justify-center py-16 text-slate-400 gap-3">
                 <FileText size={32} className="opacity-20" />
                 <p className="text-sm">暂无研报，前往企业页面生成</p>

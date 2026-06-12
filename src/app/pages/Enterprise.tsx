@@ -143,12 +143,21 @@ export default function Enterprise() {
   const fromIndustry = searchParams.get("fromIndustry");
   const rankType = searchParams.get("rankType");
   const rankTitle = searchParams.get("rankTitle");
+  const failMode = searchParams.get("fail") === "true";
 
   const [collapsedSections, setCollapsedSections] = useState<string[]>([]);
 
   // Generation progress flow: check localStorage for cached result
+  // In fail mode, always regenerate regardless of cache
   const hasCache = !!localStorage.getItem(`enterprise_result_${enterpriseId}`);
-  const [isGenerating, setIsGenerating] = useState(!hasCache);
+  const [isGenerating, setIsGenerating] = useState(failMode ? true : !hasCache);
+
+  // Clear cache when in fail mode to force regeneration
+  useEffect(() => {
+    if (failMode && enterpriseId) {
+      localStorage.removeItem(`enterprise_result_${enterpriseId}`);
+    }
+  }, [failMode, enterpriseId]);
 
   const handleGenerationComplete = useCallback(() => {
     setIsGenerating(false);
@@ -216,6 +225,7 @@ export default function Enterprise() {
           enterpriseId={enterpriseId || ""}
           breadcrumbItems={breadcrumbItems}
           onComplete={handleGenerationComplete}
+          fail={failMode}
         />
       )}
 
@@ -398,7 +408,6 @@ export default function Enterprise() {
                 { id: "3", name: "中芯国际", industry: "半导体", city: "上海", round: "上市", valuation: "4200亿", logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=64&h=64&fit=crop&q=80" },
                 { id: "4", name: "寒武纪", industry: "人工智能", city: "北京", round: "上市", valuation: "580亿", logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=64&h=64&fit=crop&q=80" },
                 { id: "5", name: "恒瑞医药", industry: "生物医药", city: "江苏连云港", round: "上市", valuation: "2700亿", logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=64&h=64&fit=crop&q=80" },
-                { id: "6", name: "大疆创新", industry: "智能制造", city: "广东深圳", round: "Pre-IPO", valuation: "1600亿", logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=64&h=64&fit=crop&q=80" },
               ].map((ent) => (
                 <Link
                   key={ent.id}
@@ -408,10 +417,9 @@ export default function Enterprise() {
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-slate-700 group-hover:text-blue-600 truncate">{ent.name}</p>
                     <div className="flex flex-wrap gap-1 mt-1">
-                      <span className="text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded">{ent.industry}</span>
-                      <span className="text-[10px] bg-emerald-50 text-emerald-600 px-1.5 py-0.5 rounded">{ent.city}</span>
-                      <span className="text-[10px] bg-purple-50 text-purple-600 px-1.5 py-0.5 rounded">{ent.round}</span>
-                      <span className="text-[10px] bg-amber-50 text-amber-600 px-1.5 py-0.5 rounded">{ent.valuation}</span>
+                      <span className="text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded">{ent.city}</span>
+                      <span className="text-[10px] bg-indigo-50 text-indigo-600 px-1.5 py-0.5 rounded">{ent.round}</span>
+                      <span className="text-[10px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded">{ent.valuation}</span>
                     </div>
                   </div>
                 </Link>

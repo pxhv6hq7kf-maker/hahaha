@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import Breadcrumb, { Crumb } from "./Breadcrumb";
 import {
   Search, Brain, FileText, TrendingUp, ShieldAlert, Building2, Briefcase, Globe,
-  Bell, Zap, ChevronDown, ChevronUp, Loader2, CheckCircle2, Clock, Sparkles,
+  Bell, ChevronDown, ChevronUp, Loader2, CheckCircle2, Sparkles,
   Bot, BarChart3, Globe2, Database, FileSearch
 } from "lucide-react";
 
@@ -13,6 +13,7 @@ interface GenerationProgressProps {
   enterpriseId: string;
   breadcrumbItems?: Crumb[];
   onComplete: (data: string) => void;
+  fail?: boolean;
 }
 
 type SearchStepStatus = "searching" | "found" | "pending";
@@ -102,7 +103,8 @@ const TOTAL_ANALYSIS_DURATION = ANALYSIS_SECTIONS.length * ANALYSIS_SECTION_DURA
 
 type Phase = "search" | "analysis" | "complete";
 
-export default function GenerationProgress({ enterpriseName, enterpriseId, breadcrumbItems = [{ label: enterpriseName }], onComplete }: GenerationProgressProps) {
+export default function GenerationProgress({ enterpriseName, enterpriseId, breadcrumbItems = [{ label: enterpriseName }], onComplete, fail = false }: GenerationProgressProps) {
+  const navigate = useNavigate();
   const [phase, setPhase] = useState<Phase>("search");
 
   // Track generating status in sessionStorage for Profile page
@@ -118,8 +120,6 @@ export default function GenerationProgress({ enterpriseName, enterpriseId, bread
     };
   }, [enterpriseId]);
 
-  const [elapsed, setElapsed] = useState(0);
-  const [speed, setSpeed] = useState(1);
   const [searchProgress, setSearchProgress] = useState(0);
   const [analysisProgress, setAnalysisProgress] = useState(0);
   const [completedSections, setCompletedSections] = useState<string[]>([]);
@@ -135,18 +135,6 @@ export default function GenerationProgress({ enterpriseName, enterpriseId, bread
 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const totalDuration = SEARCH_DURATION + TOTAL_ANALYSIS_DURATION;
-  const overallProgress = Math.min(
-    phase === "search"
-      ? (searchProgress / SEARCH_DURATION) * (SEARCH_DURATION / totalDuration) * 100
-      : phase === "analysis"
-        ? (SEARCH_DURATION / totalDuration) * 100 + (analysisProgress / TOTAL_ANALYSIS_DURATION) * (TOTAL_ANALYSIS_DURATION / totalDuration) * 100
-        : 100,
-    100
-  );
-
-  const estimatedRemaining = phase === "complete" ? 0 : Math.max(0, totalDuration - elapsed);
-
   const toggleExpand = useCallback((id: string) => {
     setExpandedItems(prev => {
       const next = new Set(prev);
@@ -159,38 +147,32 @@ export default function GenerationProgress({ enterpriseName, enterpriseId, bread
   // Main timer
   useEffect(() => {
     if (phase === "complete") return;
-    const interval = 100 / speed;
     timerRef.current = setInterval(() => {
-      setElapsed(prev => {
-        const next = prev + 0.1;
-        if (next >= SEARCH_DURATION && phase === "search") {
-          setPhase("analysis");
-        }
-        return next;
-      });
-    }, interval);
+      if (searchProgress >= SEARCH_DURATION && phase === "search") {
+        setPhase("analysis");
+      }
+    }, 100);
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  }, [phase, speed]);
+  }, [phase, searchProgress]);
 
   // Search progress
   useEffect(() => {
     if (phase !== "search") return;
-    const interval = 100 / speed;
     const timer = setInterval(() => {
       setSearchProgress(prev => {
         const next = prev + 0.1;
         if (next >= SEARCH_DURATION) return SEARCH_DURATION;
         return next;
       });
-    }, interval);
+    }, 100);
     return () => clearInterval(timer);
-  }, [phase, speed]);
+  }, [phase]);
 
   // Search step progression: advance steps and stream result text
   useEffect(() => {
     if (phase !== "search") return;
     const totalSteps = SEARCH_AGENTS[0].steps.length;
-    const stepInterval = (SEARCH_DURATION * 1000) / (totalSteps + 0.5) / speed;
+    const stepInterval = (SEARCH_DURATION * 1000) / (totalSteps + 0.5);
     // Each step: 40% query time, 60% result streaming time
     const queryTime = stepInterval * 0.4;
     const streamTime = stepInterval * 0.6;
@@ -214,7 +196,7 @@ export default function GenerationProgress({ enterpriseName, enterpriseId, bread
         const eResult = SEARCH_AGENTS[0].steps[currentStepIdx].result;
         const iResult = SEARCH_AGENTS[1].steps[currentStepIdx].result;
         let eIdx = 0, iIdx = 0;
-        const charInterval = (streamTime * 0.8) / Math.max(eResult.length, iResult.length) / speed;
+        const charInterval = (streamTime * 0.8) / Math.max(eResult.length, iResult.length);
 
         const streamTimer = setInterval(() => {
           eIdx++;
@@ -235,29 +217,28 @@ export default function GenerationProgress({ enterpriseName, enterpriseId, bread
             }
           }
         }, charInterval);
-      }, queryTime / speed);
+      }, queryTime);
     };
 
-    const startTimer = setTimeout(advanceStep, 300 / speed);
+    const startTimer = setTimeout(advanceStep, 300);
     return () => {
       clearTimeout(startTimer);
       if (phase2Timer) clearTimeout(phase2Timer);
     };
-  }, [phase, speed]);
+  }, [phase]);
 
   // Analysis progress
   useEffect(() => {
     if (phase !== "analysis") return;
-    const interval = 100 / speed;
     const timer = setInterval(() => {
       setAnalysisProgress(prev => {
         const next = prev + 0.1;
         if (next >= TOTAL_ANALYSIS_DURATION) return TOTAL_ANALYSIS_DURATION;
         return next;
       });
-    }, interval);
+    }, 100);
     return () => clearInterval(timer);
-  }, [phase, speed]);
+  }, [phase]);
 
   // Track completed sections and active section
   useEffect(() => {
@@ -279,10 +260,23 @@ export default function GenerationProgress({ enterpriseName, enterpriseId, bread
     }
   }, [analysisProgress, phase, completedSections]);
 
-  // Complete
+  // Complete - Set phase
   useEffect(() => {
     if (phase === "analysis" && analysisProgress >= TOTAL_ANALYSIS_DURATION) {
       setPhase("complete");
+    }
+  }, [phase, analysisProgress]);
+
+  // Handle completion actions
+  useEffect(() => {
+    if (phase === "complete") {
+      if (fail) {
+        setTimeout(() => {
+          navigate(`/generation-failed/${enterpriseId}?enterpriseName=${encodeURIComponent(enterpriseName)}`);
+        }, 800);
+        return;
+      }
+
       const resultData = JSON.stringify({ enterpriseId, enterpriseName, completedAt: Date.now() });
       localStorage.setItem(`enterprise_result_${enterpriseId}`, resultData);
 
@@ -300,7 +294,7 @@ export default function GenerationProgress({ enterpriseName, enterpriseId, bread
 
       setTimeout(() => onComplete(resultData), 800);
     }
-  }, [phase, analysisProgress, enterpriseId, enterpriseName, onComplete]);
+  }, [phase, enterpriseId, enterpriseName, onComplete, fail, navigate]);
 
   // Notify
   const handleNotify = () => {
@@ -315,13 +309,6 @@ export default function GenerationProgress({ enterpriseName, enterpriseId, bread
       enterpriseId,
     });
     localStorage.setItem("notifications", JSON.stringify(notifications));
-  };
-
-  const formatTime = (s: number) => {
-    const sec = Math.ceil(s);
-    const m = Math.floor(sec / 60);
-    const ss = sec % 60;
-    return m > 0 ? `${m}分${ss.toString().padStart(2, "0")}秒` : `${ss}秒`;
   };
 
   const searchComplete = phase !== "search";
@@ -341,25 +328,26 @@ export default function GenerationProgress({ enterpriseName, enterpriseId, bread
 
       {/* Header */}
       <div className="bg-gradient-to-r from-slate-800 to-slate-900 rounded-2xl p-6 text-white">
-        <div className="flex items-center gap-3 mb-3">
+        <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
             <Sparkles size={20} className="text-blue-300" />
           </div>
-          <div>
+          <div className="flex-1">
             <h1 className="text-lg font-bold">{enterpriseName}</h1>
             <p className="text-sm text-slate-300">AI 正在为您生成企业深度研报</p>
           </div>
         </div>
-        <div className="mt-4">
+        {/* Progress bar */}
+        <div className="mt-2">
           <div className="flex justify-between text-xs text-slate-400 mb-1.5">
             <span>总体进度</span>
-            <span>{Math.round(overallProgress)}%</span>
+            <span>{Math.round(phase === "search" ? (searchProgress / SEARCH_DURATION) * 50 : phase === "analysis" ? 50 + (analysisProgress / TOTAL_ANALYSIS_DURATION) * 50 : 100)}%</span>
           </div>
           <div className="h-2 bg-white/10 rounded-full overflow-hidden">
             <motion.div
               className="h-full bg-gradient-to-r from-blue-400 to-indigo-500 rounded-full"
               initial={{ width: 0 }}
-              animate={{ width: `${overallProgress}%` }}
+              animate={{ width: `${phase === "search" ? (searchProgress / SEARCH_DURATION) * 50 : phase === "analysis" ? 50 + (analysisProgress / TOTAL_ANALYSIS_DURATION) * 50 : 100}%` }}
               transition={{ duration: 0.3 }}
             />
           </div>
@@ -612,11 +600,11 @@ export default function GenerationProgress({ enterpriseName, enterpriseId, bread
             </h3>
             <div className="space-y-2">
               {[
-                { id: "1", name: "宁德时代", industry: "新能源", logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=64&h=64&fit=crop&q=80", tag: "高增长" },
-                { id: "2", name: "比亚迪", industry: "新能源", logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=64&h=64&fit=crop&q=80", tag: "热门" },
-                { id: "3", name: "中芯国际", industry: "半导体", logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=64&h=64&fit=crop&q=80", tag: "国产替代" },
-                { id: "4", name: "寒武纪", industry: "人工智能", logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=64&h=64&fit=crop&q=80", tag: "高潜力" },
-                { id: "5", name: "恒瑞医药", industry: "生物医药", logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=64&h=64&fit=crop&q=80", tag: "创新药" },
+                { id: "1", name: "宁德时代", city: "福建宁德", round: "上市", valuation: "1.2万亿" },
+                { id: "2", name: "比亚迪", city: "广东深圳", round: "上市", valuation: "8700亿" },
+                { id: "3", name: "中芯国际", city: "上海", round: "上市", valuation: "4200亿" },
+                { id: "4", name: "寒武纪", city: "北京", round: "上市", valuation: "580亿" },
+                { id: "5", name: "恒瑞医药", city: "江苏连云港", round: "上市", valuation: "2700亿" },
               ].map((ent) => (
                 <Link
                   key={ent.id}
@@ -625,65 +613,14 @@ export default function GenerationProgress({ enterpriseName, enterpriseId, bread
                 >
                   <div className="flex-1 min-w-0">
                     <p className="text-[12px] font-semibold text-slate-700 group-hover:text-blue-600 truncate">{ent.name}</p>
-                    <p className="text-[10px] text-slate-400">{ent.industry}</p>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      <span className="text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded">{ent.city}</span>
+                      <span className="text-[10px] bg-indigo-50 text-indigo-600 px-1.5 py-0.5 rounded">{ent.round}</span>
+                      <span className="text-[10px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded">{ent.valuation}</span>
+                    </div>
                   </div>
-                  <span className="text-[9px] bg-indigo-50 text-indigo-600 px-1.5 py-0.5 rounded-full font-medium">{ent.tag}</span>
                 </Link>
               ))}
-            </div>
-          </div>
-
-          {/* Time & Status */}
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
-            <h3 className="font-bold text-slate-800 text-sm mb-4 flex items-center gap-2">
-              <Clock size={14} className="text-blue-600" />
-              生成状态
-            </h3>
-
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <span className="text-xs text-slate-500">已等待</span>
-                <span className="text-sm font-semibold text-slate-800">{formatTime(elapsed)}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-xs text-slate-500">预计剩余</span>
-                <span className="text-sm font-semibold text-slate-800">
-                  {phase === "complete" ? "—" : formatTime(estimatedRemaining)}
-                </span>
-              </div>
-              <div className="border-t border-slate-100 pt-3">
-                <span className="text-xs text-slate-500">当前阶段</span>
-                <div className="mt-2">
-                  {phase === "search" && (
-                    <span className="text-xs bg-blue-50 text-blue-700 px-2.5 py-1 rounded-lg font-medium inline-flex items-center gap-1">
-                      <Search size={11} /> 信息搜索
-                    </span>
-                  )}
-                  {phase === "analysis" && (
-                    <span className="text-xs bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-lg font-medium inline-flex items-center gap-1">
-                      <Brain size={11} /> 深度分析
-                    </span>
-                  )}
-                  {phase === "complete" && (
-                    <span className="text-xs bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-lg font-medium inline-flex items-center gap-1">
-                      <CheckCircle2 size={11} /> 生成完成
-                    </span>
-                  )}
-                </div>
-              </div>
-              <div className="border-t border-slate-100 pt-3">
-                <span className="text-xs text-slate-500">进度详情</span>
-                <div className="mt-2 text-[11px] text-slate-500 space-y-1">
-                  <div className="flex justify-between">
-                    <span>搜索</span>
-                    <span className="font-medium">{searchComplete ? `${SEARCH_AGENTS[0].steps.length}/${SEARCH_AGENTS[0].steps.length}` : `${searchSteps.enterprise.completed + 1}/${SEARCH_AGENTS[0].steps.length}`}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>分析</span>
-                    <span className="font-medium">{completedSections.length}/{ANALYSIS_SECTIONS.length}</span>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -708,32 +645,6 @@ export default function GenerationProgress({ enterpriseName, enterpriseId, bread
                 <><Bell size={14} /> 完成后通知我</>
               )}
             </button>
-          </div>
-
-          {/* Speed Control */}
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
-            <h3 className="font-bold text-slate-800 text-sm mb-3 flex items-center gap-2">
-              <Zap size={14} className="text-amber-500" />
-              播放速度
-            </h3>
-            <div className="flex gap-2">
-              {[1, 2, 4].map((s) => (
-                <button
-                  key={s}
-                  onClick={() => setSpeed(s)}
-                  className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${
-                    speed === s
-                      ? "bg-blue-600 text-white shadow-sm"
-                      : "bg-slate-100 text-slate-500 hover:bg-slate-200"
-                  }`}
-                >
-                  {s}x
-                </button>
-              ))}
-            </div>
-            <p className="text-[11px] text-slate-400 mt-2">
-              展示模式加速播放，实际生成约10分钟
-            </p>
           </div>
 
           {/* Completion Animation */}
