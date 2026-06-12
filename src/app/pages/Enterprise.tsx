@@ -293,7 +293,7 @@ export default function Enterprise() {
                           <span className="text-xs text-slate-500">报告生成时间：2026-05-20 14:30</span>
                           <button className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 font-medium bg-blue-50 hover:bg-blue-100 px-2.5 py-1 rounded-md transition-colors">
                             <RefreshCw size={12} />
-                            重新生成报告（预计20分钟）
+                            重新生成报告（预计30分钟）
                           </button>
                         </div>
                       )}
