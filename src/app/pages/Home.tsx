@@ -289,7 +289,7 @@ export default function Home() {
                   <Cpu size={13} />
                   AI GENERATED REPORT
                 </p>
-                <h2 className="text-2xl font-bold text-slate-900">视金-科技企业成长性评测</h2>
+                <h2 className="text-2xl font-bold text-slate-900">{lang === "en" ? <><span className="font-sans font-oblique" style={{ fontWeight: "bold" }}>GoldSight</span>-Technology Enterprise Growth Assessment</> : "视金-科技企业成长性评测"}</h2>
               </div>
               <div className="rounded-xl bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700">已生成</div>
             </div>
@@ -341,7 +341,7 @@ export default function Home() {
         <div className="text-center mb-15">
           <h1 className="relative mb-3 inline-flex items-center justify-center gap-3 text-4xl font-bold tracking-tight text-slate-900">
             <span className="relative bg-gradient-to-br from-[#0052d9] via-[#1677ff] to-[#00a3ff] text-white p-2.5 rounded-xl shadow-lg shadow-blue-200/60"><Flame size={24} /></span>
-            <span className="relative">视金</span>
+            <span className="relative">{lang === "en" ? <span className="font-sans font-oblique" style={{ fontWeight: "bold" }}>GoldSight</span> : "视金"}</span>
           </h1>
           <p className="text-slate-500 text-lg">{t.tagline}</p>
         </div>
