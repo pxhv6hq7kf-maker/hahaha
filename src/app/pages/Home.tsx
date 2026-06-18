@@ -83,7 +83,7 @@ const I18N = {
     langLabel: "EN",
   },
   en: {
-    tagline: "Research + Cognition · The Foundation of Investment Decisions",
+    tagline: "See the true gold. Lock the lead",
     industryNav: "Industry Map",
     industryNavEn: "",
     next50Title: "High-Growth Leaders",
@@ -91,7 +91,7 @@ const I18N = {
     atlasTitle: "Niche Tech Tracks",
     atlasSubtitle: "ATLAS · Top 50 Deep-Tech Leaders",
     listedTitle: "Listed Leaders",
-    listedSubtitle: "Public Tech Companies · Top 50",
+    listedSubtitle: "Listed Tech Companies · Top 50",
     viewAll: "View all",
     langLabel: "中",
   },
