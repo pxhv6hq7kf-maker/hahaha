@@ -4,7 +4,7 @@ import { ChevronRight, Flame, ChevronLeft, ChevronRight as IconRight, Sparkles, 
 import SearchBar from "../components/SearchBar";
 import { motion } from "motion/react";
 import { NEXT50_ENTERPRISES, ATLAS_ENTERPRISES, LISTED_ENTERPRISES } from "../data/rankings";
-import { useConfirmEnterpriseReport } from "../components/ConfirmDialog";
+import { useConfirmEnterpriseReport, useNotice } from "../components/ConfirmDialog";
 
 const INDUSTRIES = ["新能源", "人工智能", "生物医药", "半导体", "低空经济", "量子计算", "消费电子", "云计算", "先进制造", "新材料", "物联网"];
 
@@ -83,7 +83,7 @@ const I18N = {
     langLabel: "EN",
   },
   en: {
-    tagline: "See the true gold. Lock the lead",
+    tagline: "See the true gold, Lock the lead",
     industryNav: "Industry Map",
     industryNavEn: "",
     next50Title: "High-Growth Leaders",
@@ -100,10 +100,20 @@ const I18N = {
 export default function Home() {
   const navigate = useNavigate();
   const requestEnterpriseReport = useConfirmEnterpriseReport();
-  const handleEnterpriseClick = (name: string, path: string) => (event: React.MouseEvent) => {
+  const showNotice = useNotice();
+  
+  const handleEnterpriseClick = (id: string | number, name: string, path: string) => (event: React.MouseEvent) => {
     event.preventDefault();
+    
+    // 星纪魅族（id=4）特殊处理：显示已有3份报告正在生成的提示
+    if (id === 4 && name === "星纪魅族") {
+      showNotice("您当前已有3份报告正在生成中，请完成后再试");
+      return;
+    }
+    
     requestEnterpriseReport({
       enterpriseName: name,
+      enterpriseId: String(id),
       onConfirm: () => navigate(path),
     });
   };
@@ -439,7 +449,7 @@ export default function Home() {
                   <Link
                     key={item.id}
                     to={href}
-                    onClick={handleEnterpriseClick(item.name, href)}
+                    onClick={handleEnterpriseClick(item.id, item.name, href)}
                     className="flex items-center justify-between p-2.5 rounded-xl group/row transition-all duration-300 hover:bg-gradient-to-r hover:from-blue-50/80 hover:to-indigo-50/50 border border-transparent hover:border-blue-100"
                   >
                   <div className="flex items-center gap-3 min-w-0">
@@ -497,7 +507,7 @@ export default function Home() {
                 <Link
                   key={item.id}
                   to={`/enterprise/${encodeURIComponent(item.id)}?enterpriseName=${encodeURIComponent(item.name)}`}
-                  onClick={handleEnterpriseClick(item.name, `/enterprise/${encodeURIComponent(item.id)}?enterpriseName=${encodeURIComponent(item.name)}`)}
+                  onClick={handleEnterpriseClick(item.id, item.name, `/enterprise/${encodeURIComponent(item.id)}?enterpriseName=${encodeURIComponent(item.name)}`)}
                   className="flex items-center justify-between p-2.5 rounded-xl group/row transition-all duration-300 hover:bg-gradient-to-r hover:from-emerald-50/80 hover:to-teal-50/50 border border-transparent hover:border-emerald-100"
                 >
                   <div className="flex items-center gap-2.5 min-w-0 flex-1">
@@ -561,7 +571,7 @@ export default function Home() {
                 <Link
                   key={item.id}
                   to={`/enterprise/${encodeURIComponent(item.id)}?enterpriseName=${encodeURIComponent(item.name)}`}
-                  onClick={handleEnterpriseClick(item.name, `/enterprise/${encodeURIComponent(item.id)}?enterpriseName=${encodeURIComponent(item.name)}`)}
+                  onClick={handleEnterpriseClick(item.id, item.name, `/enterprise/${encodeURIComponent(item.id)}?enterpriseName=${encodeURIComponent(item.name)}`)}
                   className="flex items-center justify-between p-2.5 rounded-xl group/row transition-all duration-300 hover:bg-gradient-to-r hover:from-violet-50/80 hover:to-indigo-50/50 border border-transparent hover:border-violet-100"
                 >
                   <div className="flex items-center gap-2.5 min-w-0">

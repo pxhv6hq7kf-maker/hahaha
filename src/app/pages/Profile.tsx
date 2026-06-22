@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router";
-import { User, Star, FileText, Flame, ChevronRight, Loader2, CheckCircle2, Clock, Bell } from "lucide-react";
+import { User, Star, FileText, Flame, ChevronRight, Loader2, CheckCircle2, Clock, Bell, LogOut } from "lucide-react";
 
 const FAVORITE_ENTERPRISES = [
   { id: 1, name: "宁德时代", industry: "新能源", logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=64&h=64&fit=crop&q=80" },
@@ -45,6 +45,7 @@ export default function Profile() {
   const [activeTab, setActiveTab] = useState<TabKey>("enterprises");
   const [generationStatuses, setGenerationStatuses] = useState<GenerationStatus[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   useEffect(() => {
     const updateCount = () => {
@@ -145,7 +146,12 @@ export default function Profile() {
             <User size={28} className="text-blue-600" />
           </div>
           <div className="flex-1">
-            <h1 className="text-xl font-bold text-slate-800">用户</h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-xl font-bold text-slate-800">用户</h1>
+              <button onClick={() => setShowLogoutConfirm(true)} className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors" title="退出登录">
+                <LogOut size={16} />
+              </button>
+            </div>
             <p className="text-sm text-slate-500 mt-1">收藏 {FAVORITE_ENTERPRISES.length} 家企业 · {DOWNLOADED_REPORTS.length} 份研报 · {FOLLOWED_INDUSTRIES.length} 个行业</p>
           </div>
           <Link
@@ -311,6 +317,39 @@ export default function Profile() {
             ))}
           </div>
         </section>
+      )}
+
+      {/* 退出登录确认弹窗 */}
+      {showLogoutConfirm && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/30 backdrop-blur-sm px-4">
+          <div className="w-full max-w-[360px] rounded-xl border border-slate-200 bg-white shadow-lg">
+            <div className="p-5">
+              <div className="flex items-center gap-3 mb-3">
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-100 text-amber-600">
+                  <LogOut size={16} />
+                </span>
+                <h2 className="text-base font-semibold text-slate-800">退出登录</h2>
+              </div>
+              <p className="text-sm text-slate-600 leading-relaxed">是否确定退出登录？</p>
+            </div>
+            <div className="px-5 pb-5 flex gap-2">
+              <button
+                onClick={() => setShowLogoutConfirm(false)}
+                className="flex-1 py-2.5 rounded-lg text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors"
+              >
+                取消
+              </button>
+              <button
+                onClick={() => {
+                  setShowLogoutConfirm(false);
+                }}
+                className="flex-1 py-2.5 rounded-lg text-sm font-medium text-white bg-slate-800 hover:bg-slate-900 transition-colors"
+              >
+                确认退出
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

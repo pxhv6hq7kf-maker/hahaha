@@ -615,7 +615,7 @@ export default function Industry() {
                     onClick={(event) => {
                       event.preventDefault();
                       const target = `/enterprise/${encodeURIComponent(item.id)}?enterpriseName=${encodeURIComponent(item.name)}&industryName=${encodeURIComponent(industryName)}${cityName ? `&cityName=${encodeURIComponent(cityName)}` : ""}`;
-                      requestEnterpriseReport({ enterpriseName: item.name, onConfirm: () => navigate(target) });
+                      requestEnterpriseReport({ enterpriseName: item.name, enterpriseId: String(item.id), onConfirm: () => navigate(target) });
                     }}
                     className="flex items-center justify-between p-3.5 hover:bg-slate-50 rounded-xl group transition-all border border-transparent hover:border-slate-100"
                   >
