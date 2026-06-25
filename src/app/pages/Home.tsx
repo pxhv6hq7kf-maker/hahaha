@@ -111,6 +111,12 @@ export default function Home() {
       return;
     }
     
+    // 黑芝麻智能（id=5）特殊处理：显示没有权益的提示，带二维码
+    if (id === 5 && name === "黑芝麻智能") {
+      showNotice("您当前还没有权益，请联系客服获取", { showQrCode: true });
+      return;
+    }
+    
     requestEnterpriseReport({
       enterpriseName: name,
       enterpriseId: String(id),
@@ -299,7 +305,7 @@ export default function Home() {
                   <Cpu size={13} />
                   AI GENERATED REPORT
                 </p>
-                <h2 className="text-2xl font-bold text-slate-900">{lang === "en" ? <><span className="font-sans font-oblique" style={{ fontWeight: "bold" }}>GoldSight</span>-Technology Enterprise Growth Assessment</> : "视金-科技企业成长性评测"}</h2>
+                <h2 className="text-2xl font-bold text-slate-900">{lang === "en" ? <><span className="font-sans font-oblique" style={{ fontWeight: "bold" }}>GoldSight</span>-Technology Enterprise Growth Assessment</> : "科技企业投资价值评测"}</h2>
               </div>
               <div className="rounded-xl bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700">已生成</div>
             </div>

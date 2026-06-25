@@ -10,11 +10,14 @@ interface ConfirmOptions {
 
 interface NoticeState {
   message: string;
+  buttonText?: string;
+  onButtonClick?: () => void;
+  showQrCode?: boolean;
 }
 
 interface ConfirmContextValue {
   requestEnterpriseReport: (options: ConfirmOptions) => void;
-  showNotice: (message: string) => void;
+  showNotice: (message: string, options?: { buttonText?: string; onButtonClick?: () => void; showQrCode?: boolean }) => void;
 }
 
 const MAX_CONCURRENT_GENERATIONS = 3;
@@ -43,8 +46,8 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
     setConfirmState(options);
   }, []);
 
-  const showNotice = useCallback((message: string) => {
-    setNoticeState({ message });
+  const showNotice = useCallback((message: string, options?: { buttonText?: string; onButtonClick?: () => void; showQrCode?: boolean }) => {
+    setNoticeState({ message, ...options });
   }, []);
 
   const closeConfirm = () => setConfirmState(null);
@@ -143,6 +146,15 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
                   <h2 className="text-base font-semibold text-slate-800">提示</h2>
                 </div>
                 <p className="text-sm text-slate-600 leading-relaxed">{noticeState.message}</p>
+                {noticeState.showQrCode && (
+                  <div className="mt-4 flex justify-center">
+                    <img
+                      src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=simple%20black%20and%20white%20QR%20code%20pattern%20on%20white%20background&image_size=square"
+                      alt="QR Code"
+                      className="w-32 h-32 object-contain"
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="px-5 pb-5">
