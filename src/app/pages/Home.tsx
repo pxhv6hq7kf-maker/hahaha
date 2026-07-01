@@ -70,7 +70,7 @@ type Lang = "zh" | "en";
 
 const I18N = {
   zh: {
-    tagline: "洞见企业真金，锁定投资先机",
+    tagline: "以股东视角，锁定投资先机",
     industryNav: "产业导航",
     industryNavEn: "Industry Map",
     next50Title: "成长潜力企业",
@@ -83,7 +83,7 @@ const I18N = {
     langLabel: "EN",
   },
   en: {
-    tagline: "See the true gold, Lock the lead",
+    tagline: "Through shareholders' eyes, Lock onto true gold",
     industryNav: "Industry Map",
     industryNavEn: "",
     next50Title: "High-Growth Leaders",
@@ -111,9 +111,12 @@ export default function Home() {
       return;
     }
     
-    // 黑芝麻智能（id=5）特殊处理：显示没有权益的提示，带二维码
+    // 黑芝麻智能（id=5）特殊处理：显示没有权益的提示，引导去申请权益
     if (id === 5 && name === "黑芝麻智能") {
-      showNotice("您当前还没有权益，请联系客服获取", { showQrCode: true });
+      showNotice("您当前还没有权益，请先申请权益", {
+        buttonText: "去申请",
+        onButtonClick: () => navigate("/benefits/apply"),
+      });
       return;
     }
     
@@ -357,7 +360,7 @@ export default function Home() {
         <div className="text-center mb-15">
           <h1 className="relative mb-3 inline-flex items-center justify-center gap-3 text-4xl font-bold tracking-tight text-slate-900">
             <span className="relative bg-gradient-to-br from-[#0052d9] via-[#1677ff] to-[#00a3ff] text-white p-2.5 rounded-xl shadow-lg shadow-blue-200/60"><Flame size={24} /></span>
-            <span className="relative">{lang === "en" ? <span className="font-sans font-oblique" style={{ fontWeight: "bold" }}>GoldSight</span> : "视金"}</span>
+            <span className="relative italic">{lang === "en" ? <span className="font-sans font-oblique" style={{ fontWeight: "bold" }}>GoldSight</span> : "东家视野"}</span>
           </h1>
           <p className="text-slate-500 text-lg">{t.tagline}</p>
         </div>

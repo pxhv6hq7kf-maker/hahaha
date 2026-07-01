@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router";
-import { User, Star, FileText, Flame, ChevronRight, Loader2, CheckCircle2, Clock, Bell, LogOut } from "lucide-react";
+import { User, Star, FileText, Flame, ChevronRight, Loader2, CheckCircle2, Clock, Bell, LogOut, Gem } from "lucide-react";
 
 const FAVORITE_ENTERPRISES = [
   { id: 1, name: "宁德时代", industry: "新能源", logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=64&h=64&fit=crop&q=80" },
@@ -46,6 +46,8 @@ export default function Profile() {
   const [generationStatuses, setGenerationStatuses] = useState<GenerationStatus[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [benefitsTotal, setBenefitsTotal] = useState(0);
+  const [benefitsRemaining, setBenefitsRemaining] = useState(0);
 
   useEffect(() => {
     const updateCount = () => {
@@ -58,6 +60,28 @@ export default function Profile() {
     };
     updateCount();
     const interval = setInterval(updateCount, 2000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const loadBenefits = () => {
+      try {
+        const raw = localStorage.getItem("benefits");
+        if (raw) {
+          const data = JSON.parse(raw);
+          setBenefitsTotal(data.total || 0);
+          setBenefitsRemaining(Math.max(0, (data.total || 0) - (data.used || 0)));
+        } else {
+          setBenefitsTotal(10);
+          setBenefitsRemaining(8);
+        }
+      } catch {
+        setBenefitsTotal(0);
+        setBenefitsRemaining(0);
+      }
+    };
+    loadBenefits();
+    const interval = setInterval(loadBenefits, 2000);
     return () => clearInterval(interval);
   }, []);
 
@@ -168,6 +192,32 @@ export default function Profile() {
           </Link>
         </div>
       </section>
+
+      {/* 我的权益摘要 */}
+      <Link
+        to="/benefits"
+        className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 hover:border-blue-200 hover:shadow-md transition-all group flex items-center gap-4"
+      >
+        <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center text-white shadow-sm flex-shrink-0">
+          <Gem size={20} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <h2 className="text-base font-bold text-slate-800">我的权益</h2>
+            <span className="text-xs text-slate-400">剩余 {benefitsRemaining} / {benefitsTotal} 次</span>
+          </div>
+          <div className="mt-2 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full transition-all"
+              style={{ width: `${benefitsTotal > 0 ? Math.min(100, (benefitsRemaining / benefitsTotal) * 100) : 0}%` }}
+            ></div>
+          </div>
+        </div>
+        <div className="flex items-center gap-1 text-sm font-medium text-blue-600 flex-shrink-0">
+          查看详情
+          <ChevronRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
+        </div>
+      </Link>
 
       {/* Tab 切换 */}
       <div className="flex gap-2 bg-white rounded-xl p-1.5 shadow-sm border border-slate-100 w-max">

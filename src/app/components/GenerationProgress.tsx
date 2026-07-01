@@ -271,6 +271,19 @@ export default function GenerationProgress({ enterpriseName, enterpriseId, bread
   useEffect(() => {
     if (phase === "complete") {
       if (fail) {
+        const failNotifications = JSON.parse(localStorage.getItem("notifications") || "[]");
+        failNotifications.unshift({
+          id: `gen_failed_${Date.now()}`,
+          type: "generation_failed",
+          title: `${enterpriseName} 研报生成失败`,
+          content: "研报生成失败，请重试",
+          time: new Date().toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" }),
+          read: false,
+          enterpriseId,
+          enterpriseName,
+        });
+        localStorage.setItem("notifications", JSON.stringify(failNotifications));
+
         setTimeout(() => {
           navigate(`/generation-failed/${enterpriseId}?enterpriseName=${encodeURIComponent(enterpriseName)}`);
         }, 800);

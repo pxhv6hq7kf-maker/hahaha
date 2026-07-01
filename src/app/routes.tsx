@@ -6,6 +6,8 @@ import Enterprise from "./pages/Enterprise";
 import Report from "./pages/Report";
 import FollowEnterprise from "./pages/FollowEnterprise";
 import Profile from "./pages/Profile";
+import Benefits from "./pages/Benefits";
+import BenefitApply from "./pages/BenefitApply";
 import Notifications from "./pages/Notifications";
 import City from "./pages/City";
 import RankingList from "./pages/RankingList";
@@ -25,6 +27,8 @@ export const router = createBrowserRouter([
       { path: "report/:reportId", Component: Report },
       { path: "follow/enterprise", Component: FollowEnterprise },
       { path: "profile", Component: Profile },
+      { path: "benefits", Component: Benefits },
+      { path: "benefits/apply", Component: BenefitApply },
       { path: "notifications", Component: Notifications },
       { path: "city/:cityId", Component: City },
       { path: "queue", Component: QueuePage },

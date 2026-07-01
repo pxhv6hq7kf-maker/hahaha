@@ -157,12 +157,27 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
                 )}
               </div>
 
-              <div className="px-5 pb-5">
+              <div className="px-5 pb-5 flex gap-2">
+                {noticeState.onButtonClick && (
+                  <button
+                    onClick={closeNotice}
+                    className="flex-1 py-2.5 rounded-lg text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors"
+                  >
+                    取消
+                  </button>
+                )}
                 <button
-                  onClick={closeNotice}
-                  className="w-full py-2.5 rounded-lg text-sm font-medium text-white bg-slate-800 hover:bg-slate-900 transition-colors"
+                  onClick={() => {
+                    if (noticeState.onButtonClick) {
+                      noticeState.onButtonClick();
+                      closeNotice();
+                    } else {
+                      closeNotice();
+                    }
+                  }}
+                  className="flex-1 py-2.5 rounded-lg text-sm font-medium text-white bg-slate-800 hover:bg-slate-900 transition-colors"
                 >
-                  确定
+                  {noticeState.buttonText || "确定"}
                 </button>
               </div>
             </motion.div>

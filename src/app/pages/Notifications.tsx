@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router";
-import { Bell, Check, Trash2, FileText, Search, Clock } from "lucide-react";
+import { Bell, Check, Trash2, FileText, Search, Clock, AlertCircle } from "lucide-react";
 import Breadcrumb from "../components/Breadcrumb";
 
 interface Notification {
   id: string;
-  type: "generation_complete" | "generation_notify" | "system";
+  type: "generation_complete" | "generation_notify" | "generation_failed" | "system";
   title: string;
   content?: string;
   time: string;
@@ -29,7 +29,25 @@ export default function Notifications() {
 
   const loadNotifications = () => {
     try {
-      const list = JSON.parse(localStorage.getItem("notifications") || "[]");
+      let list: Notification[] = JSON.parse(localStorage.getItem("notifications") || "[]");
+      // 首次访问注入一条"生成失败需要重试"的消息示例（仅注入一次）
+      const sampleAdded = localStorage.getItem("notifications_failed_sample_added") === "true";
+      const hasFailedRecord = Array.isArray(list) && list.some(n => n.type === "generation_failed");
+      if (!sampleAdded && !hasFailedRecord) {
+        const sample: Notification = {
+          id: "sample_failed_1",
+          type: "generation_failed",
+          title: "寒武纪 研报生成失败",
+          content: "研报生成失败，请重试",
+          time: "12:30",
+          read: false,
+          enterpriseId: "4",
+          enterpriseName: "寒武纪",
+        };
+        list = [sample, ...(Array.isArray(list) ? list : [])];
+        localStorage.setItem("notifications", JSON.stringify(list));
+      }
+      localStorage.setItem("notifications_failed_sample_added", "true");
       setNotifications(list);
     } catch {
       setNotifications([]);
@@ -68,9 +86,12 @@ export default function Notifications() {
       <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${
         item.type === "generation_complete" ? "bg-emerald-100 text-emerald-600" :
         item.type === "generation_notify" ? "bg-amber-100 text-amber-600" :
+        item.type === "generation_failed" ? "bg-rose-100 text-rose-600" :
         "bg-blue-100 text-blue-600"
       }`}>
-        {item.type === "generation_complete" ? <FileText size={16} /> : <Bell size={16} />}
+        {item.type === "generation_complete" ? <FileText size={16} /> :
+         item.type === "generation_failed" ? <AlertCircle size={16} /> :
+         <Bell size={16} />}
       </div>
 
       <div className="flex-1 min-w-0">
