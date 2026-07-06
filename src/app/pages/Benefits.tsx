@@ -48,7 +48,6 @@ export default function Benefits() {
   };
 
   const remaining = Math.max(0, data.total - data.used);
-  const progress = data.total > 0 ? Math.min(100, (remaining / data.total) * 100) : 0;
 
   return (
     <div className="flex flex-col gap-6 pb-10 fade-in">
@@ -60,35 +59,31 @@ export default function Benefits() {
         ]} />
       </section>
 
-      {/* 剩余权益 */}
-      <section className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-        <div className="flex items-center justify-between mb-5 pb-3 border-b border-slate-100">
-          <h2 className="text-base font-bold text-slate-800 flex items-center gap-2">
+      {/* 权益统计 */}
+      <div className="grid grid-cols-2 gap-4">
+        <section className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+          <div className="flex items-center gap-2 mb-4 pb-3 border-b border-slate-100">
             <span className="w-1 h-4 bg-blue-600 rounded-full"></span>
-            剩余权益
-          </h2>
-          <span className="text-xs text-slate-400">权益可用于生成企业研报</span>
-        </div>
-        <div className="flex items-end justify-between">
-          <div>
-            <div className="flex items-baseline gap-1">
-              <span className="text-4xl font-bold text-blue-600">{remaining}</span>
-              <span className="text-sm text-slate-400">次</span>
-            </div>
-            <p className="text-xs text-slate-500 mt-1.5">已用 {data.used} 次 / 共 {data.total} 次</p>
+            <h2 className="text-base font-bold text-slate-800">剩余权益</h2>
           </div>
-          <div className="text-right">
-            <span className="text-xs text-slate-400">剩余比例</span>
-            <p className="text-lg font-bold text-slate-700">{Math.round(progress)}%</p>
+          <div className="flex items-baseline gap-1">
+            <span className="text-4xl font-bold text-blue-600">{remaining}</span>
+            <span className="text-sm text-slate-400">次</span>
           </div>
-        </div>
-        <div className="mt-4 h-2 bg-slate-100 rounded-full overflow-hidden">
-          <div
-            className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full transition-all"
-            style={{ width: `${progress}%` }}
-          ></div>
-        </div>
-      </section>
+          <p className="text-xs text-slate-500 mt-2">剩余可用权益</p>
+        </section>
+        <section className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+          <div className="flex items-center gap-2 mb-4 pb-3 border-b border-slate-100">
+            <span className="w-1 h-4 bg-blue-600 rounded-full"></span>
+            <h2 className="text-base font-bold text-slate-800">已使用权益</h2>
+          </div>
+          <div className="flex items-baseline gap-1">
+            <span className="text-4xl font-bold text-slate-700">{data.used}</span>
+            <span className="text-sm text-slate-400">次</span>
+          </div>
+          <p className="text-xs text-slate-500 mt-2">累计已消耗权益</p>
+        </section>
+      </div>
 
       {/* 权益消费记录 */}
       <section className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">

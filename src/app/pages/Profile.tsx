@@ -46,8 +46,8 @@ export default function Profile() {
   const [generationStatuses, setGenerationStatuses] = useState<GenerationStatus[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-  const [benefitsTotal, setBenefitsTotal] = useState(0);
   const [benefitsRemaining, setBenefitsRemaining] = useState(0);
+  const [benefitsUsed, setBenefitsUsed] = useState(0);
 
   useEffect(() => {
     const updateCount = () => {
@@ -69,10 +69,10 @@ export default function Profile() {
         const raw = localStorage.getItem("benefits");
         if (raw) {
           const data = JSON.parse(raw);
-          setBenefitsTotal(data.total || 0);
+          setBenefitsUsed(data.used || 0);
           setBenefitsRemaining(Math.max(0, (data.total || 0) - (data.used || 0)));
         } else {
-          setBenefitsTotal(10);
+          setBenefitsUsed(2);
           setBenefitsRemaining(8);
         }
       } catch {
@@ -204,13 +204,9 @@ export default function Profile() {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <h2 className="text-base font-bold text-slate-800">我的权益</h2>
-            <span className="text-xs text-slate-400">剩余 {benefitsRemaining} / {benefitsTotal} 次</span>
-          </div>
-          <div className="mt-2 h-1.5 bg-slate-100 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full transition-all"
-              style={{ width: `${benefitsTotal > 0 ? Math.min(100, (benefitsRemaining / benefitsTotal) * 100) : 0}%` }}
-            ></div>
+            <span className="text-xs text-slate-400">剩余 {benefitsRemaining} 次</span>
+            <span className="text-xs text-slate-400">·</span>
+            <span className="text-xs text-slate-400">已使用 {benefitsUsed} 次</span>
           </div>
         </div>
         <div className="flex items-center gap-1 text-sm font-medium text-blue-600 flex-shrink-0">
