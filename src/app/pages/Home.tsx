@@ -70,7 +70,7 @@ type Lang = "zh" | "en";
 
 const I18N = {
   zh: {
-    tagline: "以股东视角，锁定投资先机",
+    tagline: "发掘企业价值，锁定投资先机",
     industryNav: "产业导航",
     industryNavEn: "Industry Map",
     next50Title: "早小硬推荐榜",
@@ -360,7 +360,7 @@ export default function Home() {
         <div className="text-center mb-15">
           <h1 className="relative mb-3 inline-flex items-center justify-center gap-3 text-4xl font-bold tracking-tight text-slate-900">
             <span className="relative bg-gradient-to-br from-[#0052d9] via-[#1677ff] to-[#00a3ff] text-white p-2.5 rounded-xl shadow-lg shadow-blue-200/60"><Flame size={24} /></span>
-            <span className="relative italic">{lang === "en" ? <span className="font-sans font-oblique" style={{ fontWeight: "bold" }}>GoldSight</span> : "东家视野"}</span>
+            <span className="relative">{lang === "en" ? <span className="font-sans font-oblique" style={{ fontWeight: "bold" }}>GoldSight</span> : "点睛投研"}</span>
           </h1>
           <p className="text-slate-500 text-lg">{t.tagline}</p>
         </div>
