@@ -50,7 +50,7 @@ export default function RootLayout() {
           <Link to="/home" className="flex items-center gap-2 text-slate-800 hover:text-blue-600 transition-colors">
             <span className="bg-blue-600 text-white p-1.5 rounded-lg"><Flame size={16} /></span>
             <span className="font-bold text-lg">
-              {lang === "en" ? <span className="font-sans font-oblique" style={{ fontWeight: "bold" }}>GoldSight</span> : "点睛投研"}
+              {lang === "en" ? <span className="font-sans font-oblique" style={{ fontWeight: "bold" }}>Frontier Stars</span> : "点睛投研"}
             </span>
           </Link>
           <div className="flex items-center gap-3">
