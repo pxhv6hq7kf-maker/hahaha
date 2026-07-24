@@ -1,7 +1,10 @@
-import { useParams, useSearchParams, Link, useNavigate } from "react-router";
-import { ArrowLeft, Download, Printer, Share2, FileText, CheckCircle2, RefreshCw } from "lucide-react";
+import { useParams, useSearchParams, useNavigate } from "react-router";
+import { useState, useRef, useEffect } from "react";
+import { motion } from "motion/react";
+import { Download, Printer, Share2, FileText, CheckCircle2, RefreshCw } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, Cell, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import Breadcrumb from "../components/Breadcrumb";
+import ReportAIChat from "./report-ai-chat/ReportAIChat";
 
 const CHART_COLORS = ["#2563eb", "#06b6d4", "#6366f1"];
 const CHART_GRID = "#dbeafe";
@@ -108,6 +111,29 @@ export default function Report() {
   const industryName = searchParams.get("industryName");
   const navigate = useNavigate();
 
+  const [leadContent, setLeadContent] = useState(
+    "本报告基于多维数据模型，对目标企业的核心竞争力、市场占位、财务健康度及未来发展潜力进行了全面评估。"
+  );
+  const [leadUpdated, setLeadUpdated] = useState(false);
+  const [updateCount, setUpdateCount] = useState(0);
+  const reportContentRef = useRef<HTMLDivElement>(null);
+  const restoreTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  // AI 分析完成后，原位更新研报核心摘要，蓝色框闪烁2下标出修改，10秒后恢复常态
+  const handleUpdateReport = (content: string) => {
+    setLeadContent(content);
+    setLeadUpdated(true);
+    setUpdateCount((c) => c + 1);
+    if (restoreTimerRef.current) clearTimeout(restoreTimerRef.current);
+    restoreTimerRef.current = setTimeout(() => setLeadUpdated(false), 10000);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (restoreTimerRef.current) clearTimeout(restoreTimerRef.current);
+    };
+  }, []);
+
   const handleBack = () => {
     if (enterpriseId) {
       navigate(`/enterprise/${enterpriseId}`);
@@ -117,7 +143,7 @@ export default function Report() {
   };
 
   return (
-    <div className="flex flex-col gap-6 pb-10 fade-in min-h-[80vh]">
+    <div className="flex flex-col gap-6 pb-24 fade-in min-h-[80vh]">
       {/* Header Actions */}
       <section className="flex items-center justify-between pt-4 pb-4 border-b border-slate-200">
         <Breadcrumb items={[
@@ -160,10 +186,6 @@ export default function Report() {
           </button>
         </div>
         <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 text-blue-600 bg-blue-50 px-3 py-1 rounded-full text-sm font-medium mb-6">
-            <FileText size={16} />
-            深度研究报告
-          </div>
           <h1 className="text-3xl lg:text-4xl font-bold text-slate-900 mb-6 leading-tight">
             2024年第一季度企业深度洞察与投资价值分析报告
           </h1>
@@ -174,10 +196,26 @@ export default function Report() {
           </div>
         </div>
 
-        <div className="prose prose-slate max-w-none">
-          <p className="lead text-lg text-slate-600 mb-8 border-l-4 border-blue-600 pl-4 py-1 bg-slate-50 rounded-r-lg">
-            本报告基于多维数据模型，对目标企业的核心竞争力、市场占位、财务健康度及未来发展潜力进行了全面评估。
-          </p>
+        <div ref={reportContentRef} className="prose prose-slate max-w-none">
+          <motion.p
+            key={updateCount}
+            animate={
+              leadUpdated
+                ? { opacity: [1, 0.25, 1, 0.25, 1] }
+                : { opacity: 1 }
+            }
+            transition={
+              leadUpdated
+                ? { duration: 1.6, times: [0, 0.25, 0.5, 0.75, 1] }
+                : { duration: 0 }
+            }
+            style={leadUpdated ? { boxShadow: "0 0 0 2px #3b82f6" } : undefined}
+            className={`lead text-lg text-slate-600 mb-8 border-l-4 border-blue-600 pl-4 py-1 rounded-r-lg transition-colors ${
+              leadUpdated ? "bg-sky-100" : "bg-slate-50"
+            }`}
+          >
+            {leadContent}
+          </motion.p>
 
           <h3 className="text-xl font-bold text-slate-800 mt-10 mb-4 flex items-center gap-2 border-b border-slate-100 pb-2">
             <CheckCircle2 className="text-blue-600" size={20} />
@@ -332,6 +370,13 @@ export default function Report() {
           </div>
         </div>
       </section>
+
+      {/* 底部悬浮 AI 对话窗口 */}
+      <ReportAIChat
+        reportId={reportId || "default"}
+        reportContentRef={reportContentRef}
+        onUpdateReport={handleUpdateReport}
+      />
     </div>
   );
 }
