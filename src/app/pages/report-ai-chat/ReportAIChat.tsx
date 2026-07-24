@@ -185,8 +185,8 @@ export default function ReportAIChat({ reportId, reportContentRef, onUpdateRepor
 
   return (
     <>
-      <div className="fixed bottom-0 left-0 right-0 z-[150] px-4 pointer-events-none">
-        <div className="pointer-events-auto mx-auto w-full max-w-[928px] bg-white border border-slate-200 rounded-t-xl shadow-[0_-8px_30px_-12px_rgba(0,0,0,0.15)] flex flex-col overflow-hidden">
+      <div className="fixed bottom-2 left-0 right-0 z-[150] px-4 pointer-events-none">
+        <div className="pointer-events-auto mx-auto w-full max-w-[928px] bg-white border border-slate-200 rounded-xl shadow-[0_-8px_30px_-12px_rgba(0,0,0,0.15)] flex flex-col overflow-hidden">
           {/* 头部 */}
           {isExpanded && (
             <div className="flex items-center justify-between px-4 py-2.5 border-b border-slate-100 bg-slate-50/80">
@@ -267,7 +267,7 @@ export default function ReportAIChat({ reportId, reportContentRef, onUpdateRepor
                 <div className="flex justify-start">
                   <div className="bg-slate-50 border border-slate-100 rounded-2xl rounded-bl-sm px-3.5 py-2.5 text-sm text-slate-400 flex items-center gap-1.5">
                     <Loader2 size={14} className="animate-spin" />
-                    AI智能体分析中…
+                    AI智能体分析中…【返回过程信息】
                   </div>
                 </div>
               )}
@@ -311,7 +311,7 @@ export default function ReportAIChat({ reportId, reportContentRef, onUpdateRepor
                   handleSend();
                 }
               }}
-              placeholder="输入研报编辑需求，如：结合上传调研资料补充现场调研信息、统一全文文风…"
+              placeholder="输入研报编辑需求，如：结合上传调研资料补充现场调研信息"
               rows={1}
               className="flex-1 resize-none bg-slate-50 rounded-lg px-3 py-2 text-sm text-slate-700 outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white border border-slate-200 placeholder:text-slate-400"
             />

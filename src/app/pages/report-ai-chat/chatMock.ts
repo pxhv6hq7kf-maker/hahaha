@@ -89,7 +89,7 @@ export function generateUpdate(
     timer = setTimeout(() => {
       const actions = inferActions(instruction, files);
       const newContent = buildNewContent(instruction, files);
-      const summary = "我将基于本次提出的【修改需求】，针对性重构【对应文档】部分内容，严格适配全文专业正式文风，保障整体逻辑统一、上下文流畅连贯。";
+      const summary = "我基于本次提出的【修改需求】，针对性重构【对应文档】部分内容，严格适配全文专业正式文风，保障整体逻辑统一、上下文流畅连贯。";
       resolve({ actions, summary, newContent });
     }, delay);
   });

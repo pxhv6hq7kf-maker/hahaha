@@ -1,6 +1,6 @@
 import { useParams, useSearchParams, useNavigate } from "react-router";
 import { useState, useRef, useEffect } from "react";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import { Download, Printer, Share2, FileText, CheckCircle2, RefreshCw } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, Cell, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import Breadcrumb from "../components/Breadcrumb";
@@ -125,7 +125,13 @@ export default function Report() {
     setLeadUpdated(true);
     setUpdateCount((c) => c + 1);
     if (restoreTimerRef.current) clearTimeout(restoreTimerRef.current);
-    restoreTimerRef.current = setTimeout(() => setLeadUpdated(false), 10000);
+    restoreTimerRef.current = setTimeout(() => setLeadUpdated(false), 8000);
+    // 标记该研报已经过 AI 编辑，供个人中心-我的研报展示标签
+    try {
+      if (reportId) localStorage.setItem(`report_ai_updated_${reportId}`, "1");
+    } catch {
+      /* ignore */
+    }
   };
 
   useEffect(() => {
@@ -177,7 +183,7 @@ export default function Report() {
       </section>
 
       {/* Report Content Mock */}
-      <section className="flex-1 bg-white rounded-2xl shadow-sm shadow-blue-100/50 border border-slate-200 p-10 lg:p-16 max-w-4xl mx-auto w-full">
+      <section className="relative flex-1 bg-white rounded-2xl shadow-sm shadow-blue-100/50 border border-slate-200 p-10 lg:p-16 max-w-4xl mx-auto w-full">
         <div className="flex items-center justify-between mb-6">
           <span className="text-xs text-slate-500">报告生成时间：2026-05-20 14:30</span>
           <button className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 font-medium bg-blue-50 hover:bg-blue-100 px-2.5 py-1 rounded-md transition-colors">
@@ -370,6 +376,22 @@ export default function Report() {
           </div>
         </div>
       </section>
+
+      {/* 修改完成提示：研报区域右侧外 */}
+      <AnimatePresence>
+        {leadUpdated && (
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            transition={{ duration: 0.3 }}
+            className="fixed top-20 left-[calc(50%+28rem+0.75rem)] z-[160] flex items-center gap-2 text-sm font-medium text-slate-700 bg-white px-4 py-2.5 rounded-xl shadow-lg shadow-slate-200/60 ring-1 ring-slate-100"
+          >
+            <CheckCircle2 size={16} className="text-emerald-500" />
+            已完成AI编辑
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* 底部悬浮 AI 对话窗口 */}
       <ReportAIChat

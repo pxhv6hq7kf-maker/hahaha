@@ -161,6 +161,14 @@ export default function Profile() {
     return d.toLocaleDateString("zh-CN", { month: "2-digit", day: "2-digit" }) + " " + d.toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" });
   };
 
+  const isAiUpdated = (id: string) => {
+    try {
+      return !!localStorage.getItem(`report_ai_updated_${id}`);
+    } catch {
+      return false;
+    }
+  };
+
   return (
     <div className="flex flex-col gap-6 pb-10 fade-in">
       {/* 用户信息区 */}
@@ -285,7 +293,14 @@ export default function Profile() {
                     <FileText size={14} />
                   </span>
                   <div className="flex-1 min-w-0">
-                    <span className="font-semibold text-slate-700 block">{gen.enterpriseName} 深度研报</span>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-semibold text-slate-700">{gen.enterpriseName} 深度研报</span>
+                      {isAiUpdated(gen.enterpriseId) && (
+                        <span className="inline-flex items-center gap-1 text-xs text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md">
+                          <CheckCircle2 size={11} /> 已完成AI编辑
+                        </span>
+                      )}
+                    </div>
                     {gen.status === "completed" && (
                       <span className="text-xs text-slate-400 mt-0.5 block">
                         开始生成时间：{formatCompletedTime(gen.startedAt)} · 完成时间：{formatCompletedTime(gen.completedAt)}
