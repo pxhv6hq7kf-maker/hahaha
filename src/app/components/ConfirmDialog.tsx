@@ -97,7 +97,7 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
                   <p className="mt-1 text-base font-semibold text-slate-900 truncate">{confirmState.enterpriseName}</p>
                 </div>
                 <p className="text-sm text-slate-600 leading-relaxed">
-                  查看企业研报将消耗一次报告额度，是否确认生成？
+                  查看企业研报将消耗一次报告额度，是否确认生成？（报告生成预计需要30分钟，请您稍作等待）
                 </p>
               </div>
 

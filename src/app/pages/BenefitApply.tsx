@@ -17,6 +17,43 @@ function generateCaptcha(): string {
 
 const CAPTCHA_COLORS = ["#2563eb", "#7c3aed", "#db2777", "#059669", "#d97706", "#475569"];
 
+// 全球主要国家/地区手机区号
+const COUNTRY_CODES = [
+  { code: "+86", label: "中国大陆 +86" },
+  { code: "+852", label: "中国香港 +852" },
+  { code: "+853", label: "中国澳门 +853" },
+  { code: "+886", label: "中国台湾 +886" },
+  { code: "+1", label: "美国/加拿大 +1" },
+  { code: "+44", label: "英国 +44" },
+  { code: "+81", label: "日本 +81" },
+  { code: "+82", label: "韩国 +82" },
+  { code: "+65", label: "新加坡 +65" },
+  { code: "+60", label: "马来西亚 +60" },
+  { code: "+66", label: "泰国 +66" },
+  { code: "+84", label: "越南 +84" },
+  { code: "+62", label: "印度尼西亚 +62" },
+  { code: "+63", label: "菲律宾 +63" },
+  { code: "+91", label: "印度 +91" },
+  { code: "+971", label: "阿联酋 +971" },
+  { code: "+966", label: "沙特 +966" },
+  { code: "+972", label: "以色列 +972" },
+  { code: "+90", label: "土耳其 +90" },
+  { code: "+61", label: "澳大利亚 +61" },
+  { code: "+64", label: "新西兰 +64" },
+  { code: "+49", label: "德国 +49" },
+  { code: "+33", label: "法国 +33" },
+  { code: "+39", label: "意大利 +39" },
+  { code: "+34", label: "西班牙 +34" },
+  { code: "+31", label: "荷兰 +31" },
+  { code: "+41", label: "瑞士 +41" },
+  { code: "+7", label: "俄罗斯 +7" },
+  { code: "+55", label: "巴西 +55" },
+  { code: "+54", label: "阿根廷 +54" },
+  { code: "+52", label: "墨西哥 +52" },
+  { code: "+27", label: "南非 +27" },
+  { code: "+20", label: "埃及 +20" },
+];
+
 function CaptchaImage({ value }: { value: string }) {
   const chars = value.split("");
   return (
@@ -72,10 +109,9 @@ function CaptchaImage({ value }: { value: string }) {
 interface FormState {
   name: string;
   phone: string;
+  phoneCode: string;
   email: string;
   company: string;
-  department: string;
-  position: string;
   region: string;
   captcha: string;
 }
@@ -83,10 +119,9 @@ interface FormState {
 const INITIAL_FORM: FormState = {
   name: "",
   phone: "",
+  phoneCode: "+86",
   email: "",
   company: "",
-  department: "",
-  position: "",
   region: "",
   captcha: "",
 };
@@ -98,8 +133,10 @@ export default function BenefitApply() {
   const [captchaCode, setCaptchaCode] = useState(generateCaptcha);
   const [errors, setErrors] = useState<Partial<Record<keyof FormState | "agree", string>>>({});
   const [submitted, setSubmitted] = useState(false);
+  const [expandedCountry, setExpandedCountry] = useState<string | null>(null);
   const [expandedProvince, setExpandedProvince] = useState<string | null>(null);
   const [regionOpen, setRegionOpen] = useState(false);
+  const [phoneCodeOpen, setPhoneCodeOpen] = useState(false);
 
   const updateField = (key: keyof FormState, value: string) => {
     setForm(prev => ({ ...prev, [key]: value }));
@@ -114,13 +151,10 @@ export default function BenefitApply() {
   const validate = useCallback(() => {
     const next: Partial<Record<keyof FormState | "agree", string>> = {};
     if (!form.name.trim()) next.name = "请输入您的姓名";
-    if (!form.phone.trim()) next.phone = "请输入您的手机号";
-    else if (!/^1[3-9]\d{9}$/.test(form.phone.trim())) next.phone = "请输入正确的手机号";
-    if (!form.email.trim()) next.email = "请输入您的工作邮箱";
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) next.email = "请输入正确的邮箱地址";
-    if (!form.company.trim()) next.company = "请输入您的公司/机构";
-    if (!form.department.trim()) next.department = "请输入您的部门";
-    if (!form.position.trim()) next.position = "请输入您的职位";
+    if (!form.phone.trim()) next.phone = "请输入手机号";
+    else if (!/^\d{6,15}$/.test(form.phone.trim())) next.phone = "请输入正确的手机号";
+    if (form.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) next.email = "请输入正确的邮箱地址";
+    if (!form.company.trim()) next.company = "请输入您的公司、部门";
     if (!form.region.trim()) next.region = "请选择所属地域";
     if (!form.captcha.trim()) next.captcha = "请输入图形验证码";
     else if (form.captcha.trim().toUpperCase() !== captchaCode) next.captcha = "验证码不正确";
@@ -139,14 +173,19 @@ export default function BenefitApply() {
     setSubmitted(true);
   };
 
-  const fields: { key: keyof FormState; label: string; placeholder: string; type?: string; maxLength?: number }[] = [
+  const fields: { key: keyof FormState; label: string; placeholder: string; type?: string; maxLength?: number; required?: boolean }[] = [
     { key: "name", label: "您的姓名", placeholder: "请输入姓名", maxLength: 20 },
-    { key: "phone", label: "您的手机号", placeholder: "请输入手机号", type: "tel", maxLength: 11 },
-    { key: "email", label: "您的工作邮箱", placeholder: "请输入工作邮箱", type: "email" },
-    { key: "company", label: "您的公司/机构", placeholder: "请输入公司或机构名称", maxLength: 50 },
-    { key: "department", label: "您的部门", placeholder: "请输入部门", maxLength: 30 },
-    { key: "position", label: "您的职位", placeholder: "请输入职位", maxLength: 30 },
+    { key: "phone", label: "您的手机号", placeholder: "请输入手机号", type: "tel", maxLength: 15 },
+    { key: "email", label: "您的工作邮箱", placeholder: "请输入工作邮箱（选填）", type: "email", required: false },
+    { key: "company", label: "您的公司、部门", placeholder: "请输入公司、部门名称", maxLength: 50 },
   ];
+
+  const inputClass = (hasError?: string) =>
+    `w-full px-3.5 py-2.5 text-sm rounded-lg border bg-white outline-none transition-colors ${
+      hasError
+        ? "border-rose-300 focus:border-rose-400 focus:ring-2 focus:ring-rose-100"
+        : "border-slate-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+    }`;
 
   return (
     <div className="flex flex-col gap-6 pb-10 fade-in">
@@ -171,20 +210,68 @@ export default function BenefitApply() {
           {fields.map(f => (
             <div key={f.key} className="flex flex-col gap-1.5">
               <label className="text-sm font-medium text-slate-700">
-                {f.label} <span className="text-rose-500">*</span>
+                {f.label} {f.required !== false && <span className="text-rose-500">*</span>}
               </label>
-              <input
-                type={f.type || "text"}
-                value={form[f.key]}
-                maxLength={f.maxLength}
-                placeholder={f.placeholder}
-                onChange={e => updateField(f.key, e.target.value)}
-                className={`w-full px-3.5 py-2.5 text-sm rounded-lg border bg-white outline-none transition-colors ${
-                  errors[f.key]
-                    ? "border-rose-300 focus:border-rose-400 focus:ring-2 focus:ring-rose-100"
-                    : "border-slate-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
-                }`}
-              />
+              {f.key === "phone" ? (
+                <div className="flex gap-2">
+                  <Popover open={phoneCodeOpen} onOpenChange={setPhoneCodeOpen}>
+                    <PopoverTrigger asChild>
+                      <button
+                        type="button"
+                        className={`flex items-center justify-between gap-1 px-3 py-2.5 text-sm rounded-lg border bg-white outline-none transition-colors flex-shrink-0 ${
+                          errors.phone
+                            ? "border-rose-300 focus:border-rose-400 focus:ring-2 focus:ring-rose-100"
+                            : "border-slate-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+                        }`}
+                      >
+                        <span className="text-slate-700 font-medium">{form.phoneCode}</span>
+                        <ChevronDown size={12} className="text-slate-400" />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-52 max-h-72 overflow-y-auto p-1" align="start">
+                      {COUNTRY_CODES.map(c => (
+                        <button
+                          key={c.code + c.label}
+                          type="button"
+                          onClick={() => {
+                            updateField("phoneCode", c.code);
+                            setPhoneCodeOpen(false);
+                          }}
+                          className={`w-full text-left px-2.5 py-1.5 text-sm rounded-md transition-colors ${
+                            form.phoneCode === c.code
+                              ? "bg-blue-50 text-blue-600 font-medium"
+                              : "text-slate-600 hover:bg-slate-50"
+                          }`}
+                        >
+                          {c.label}
+                        </button>
+                      ))}
+                    </PopoverContent>
+                  </Popover>
+                  <input
+                    type="tel"
+                    inputMode="numeric"
+                    value={form.phone}
+                    maxLength={15}
+                    placeholder="请输入手机号"
+                    onChange={e => updateField("phone", e.target.value.replace(/\D/g, ""))}
+                    className={`flex-1 px-3.5 py-2.5 text-sm rounded-lg border bg-white outline-none transition-colors ${
+                      errors.phone
+                        ? "border-rose-300 focus:border-rose-400 focus:ring-2 focus:ring-rose-100"
+                        : "border-slate-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+                    }`}
+                  />
+                </div>
+              ) : (
+                <input
+                  type={f.type || "text"}
+                  value={form[f.key]}
+                  maxLength={f.maxLength}
+                  placeholder={f.placeholder}
+                  onChange={e => updateField(f.key, e.target.value)}
+                  className={inputClass(errors[f.key])}
+                />
+              )}
               {errors[f.key] && <span className="text-xs text-rose-500">{errors[f.key]}</span>}
             </div>
           ))}
@@ -206,47 +293,88 @@ export default function BenefitApply() {
                 >
                   <span className={`flex items-center gap-1.5 ${form.region ? "text-slate-700" : "text-slate-400"}`}>
                     <MapPin size={14} className={form.region ? "text-blue-500" : "text-slate-300"} />
-                    {form.region || "请选择所属地域"}
+                    {form.region || "请选择所属地域（含全球主要国家/地区）"}
                   </span>
                   <ChevronDown size={14} className={`text-slate-400 transition-transform ${regionOpen ? "rotate-180" : ""}`} />
                 </button>
               </PopoverTrigger>
               <PopoverContent className="w-[--radix-popover-trigger-width] max-h-80 overflow-y-auto p-1.5" align="start">
-                {REGIONS.map(province => (
-                  <div key={province.name}>
+                {REGIONS.map(region => (
+                  <div key={region.name}>
                     <button
                       type="button"
-                      onClick={() => setExpandedProvince(prev => prev === province.name ? null : province.name)}
+                      onClick={() => setExpandedCountry(prev => prev === region.name ? null : region.name)}
                       className="w-full flex items-center gap-1 px-2.5 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 rounded-md transition-colors text-left"
                     >
-                      {expandedProvince === province.name
+                      {expandedCountry === region.name
                         ? <ChevronDown size={14} className="text-slate-400 flex-shrink-0" />
                         : <ChevronRight size={14} className="text-slate-400 flex-shrink-0" />}
-                      {province.name}
+                      {region.name}
                     </button>
-                    {expandedProvince === province.name && (
+                    {expandedCountry === region.name && (
                       <div className="ml-4 border-l border-slate-100 pl-1.5">
-                        {province.cities.map(city => {
-                          const active = form.region === `${province.name} / ${city}`;
-                          return (
-                            <button
-                              key={city}
-                              type="button"
-                              onClick={() => {
-                                updateField("region", `${province.name} / ${city}`);
-                                setExpandedProvince(null);
-                                setRegionOpen(false);
-                              }}
-                              className={`w-full text-left px-2.5 py-1.5 text-sm rounded-md transition-colors ${
-                                active
-                                  ? "bg-blue-50 text-blue-600 font-medium"
-                                  : "text-slate-600 hover:bg-slate-50"
-                              }`}
-                            >
-                              {city}
-                            </button>
-                          );
-                        })}
+                        {region.provinces
+                          ? region.provinces.map(prov => (
+                              <div key={prov.name}>
+                                <button
+                                  type="button"
+                                  onClick={() => setExpandedProvince(prev => prev === prov.name ? null : prov.name)}
+                                  className="w-full flex items-center gap-1 px-2.5 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 rounded-md transition-colors text-left"
+                                >
+                                  {expandedProvince === prov.name
+                                    ? <ChevronDown size={14} className="text-slate-400 flex-shrink-0" />
+                                    : <ChevronRight size={14} className="text-slate-400 flex-shrink-0" />}
+                                  {prov.name}
+                                </button>
+                                {expandedProvince === prov.name && (
+                                  <div className="ml-4 border-l border-slate-100 pl-1.5">
+                                    {prov.cities.map(city => {
+                                      const active = form.region === `${region.name} / ${prov.name} / ${city}`;
+                                      return (
+                                        <button
+                                          key={city}
+                                          type="button"
+                                          onClick={() => {
+                                            updateField("region", `${region.name} / ${prov.name} / ${city}`);
+                                            setExpandedProvince(null);
+                                            setExpandedCountry(null);
+                                            setRegionOpen(false);
+                                          }}
+                                          className={`w-full text-left px-2.5 py-1.5 text-sm rounded-md transition-colors ${
+                                            active
+                                              ? "bg-blue-50 text-blue-600 font-medium"
+                                              : "text-slate-600 hover:bg-slate-50"
+                                          }`}
+                                        >
+                                          {city}
+                                        </button>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+                              </div>
+                            ))
+                          : region.cities?.map(city => {
+                              const active = form.region === `${region.name} / ${city}`;
+                              return (
+                                <button
+                                  key={city}
+                                  type="button"
+                                  onClick={() => {
+                                    updateField("region", `${region.name} / ${city}`);
+                                    setExpandedCountry(null);
+                                    setRegionOpen(false);
+                                  }}
+                                  className={`w-full text-left px-2.5 py-1.5 text-sm rounded-md transition-colors ${
+                                    active
+                                      ? "bg-blue-50 text-blue-600 font-medium"
+                                      : "text-slate-600 hover:bg-slate-50"
+                                  }`}
+                                >
+                                  {city}
+                                </button>
+                              );
+                            })}
                       </div>
                     )}
                   </div>
